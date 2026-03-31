@@ -1,10 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { login, signup } from './actions'
 import { Mail, Lock, Loader2 } from 'lucide-react'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -19,10 +21,20 @@ export default function LoginPage() {
     try {
       if (isLogin) {
         const res = await login(formData)
-        if (res?.error) setError(res.error)
+        if (res?.error) {
+          setError(res.error)
+          setLoading(false)
+        } else if (res?.success) {
+          router.push('/')
+        }
       } else {
         const res = await signup(formData)
-        if (res?.error) setError(res.error)
+        if (res?.error) {
+          setError(res.error)
+          setLoading(false)
+        } else if (res?.success) {
+          router.push('/')
+        }
       }
     } catch (err) {
       console.error(err)
