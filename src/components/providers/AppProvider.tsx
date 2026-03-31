@@ -349,6 +349,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }, [supabase, fetchData])
 
+  const updateSavingsGoalAmount = useCallback(async (goalId: string, additionalAmount: number) => {
+    const { data: goal } = await supabase.from('savings_goals').select('current_amount').eq('id', goalId).single()
+    if (!goal) return
+
+    const newAmount = Number(goal.current_amount) + additionalAmount
+    const { error } = await supabase.from('savings_goals').update({ current_amount: newAmount }).eq('id', goalId)
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    await fetchData()
+  }, [supabase, fetchData])
+
   const addWallet = useCallback(async (data: {
     name: string
     type: string
