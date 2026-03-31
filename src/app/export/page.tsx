@@ -2,7 +2,7 @@
 
 import BottomNav from '@/components/navigation/BottomNav'
 import { useApp } from '@/components/providers/AppProvider'
-import { ArrowLeft, FileSpreadsheet, Download } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, Download, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ExportPage() {
