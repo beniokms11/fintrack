@@ -213,7 +213,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setBudgets(processedBudgets)
 
     // Calculate Chart Data (last 7 days for simplicity)
-    const cwData = []
+    const cwData: ChartDataPoint[] = []
+    
+    // First, let's get daily deltas for the last 7 days
+    const dailyDeltas: { dateStr: string; dayName: string; dayInc: number; dayExp: number; dayNet: number }[] = []
+    let totalDeltaInPeriod = 0
+    
     for (let i = 6; i >= 0; i--) {
       const d = new Date()
       d.setDate(d.getDate() - i)
@@ -230,14 +235,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       })
       
-      cwData.push({
-        date: dateStr,
-        label: dayName,
-        balance: balance, // simplified
-        income: dayInc,
-        expense: dayExp
-      })
+      const dayNet = dayInc - dayExp
+      dailyDeltas.push({ dateStr, dayName, dayInc, dayExp, dayNet })
+      if (i > 0) totalDeltaInPeriod += dayNet // We don't subtract today's delta yet if we want beginning of day, but let's do end of day.
     }
+
+    // Work backwards to find the balance at the end of 7 days ago
+    // balanceToday = balance7DaysAgo + totalDeltaInPeriod
+    // balance7DaysAgo = balance - sum(deltas of all 7 days)
+    const allDeltasSum = dailyDeltas.reduce((sum, d) => sum + d.dayNet, 0)
+    let runningBalance = balance - allDeltasSum
+
+    dailyDeltas.forEach(day => {
+      runningBalance += day.dayNet
+      cwData.push({
+        date: day.dateStr,
+        label: day.dayName,
+        balance: runningBalance,
+        income: day.dayInc,
+        expense: day.dayExp
+      })
+    })
+
     setChartData(cwData)
 
     // Fetch AI Insights if there are transactions

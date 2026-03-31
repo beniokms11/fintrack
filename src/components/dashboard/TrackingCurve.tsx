@@ -77,10 +77,13 @@ export default function TrackingCurve({ data, insight }: TrackingCurveProps) {
                 interval="preserveStartEnd"
               />
               <YAxis
-                tick={{ fontSize: 11, fill: 'var(--color-text-tertiary)' }}
+                hide={false}
+                tick={{ fontSize: 10, fill: 'var(--color-text-tertiary)' }}
                 axisLine={false}
                 tickLine={false}
                 tickFormatter={(val: number) => formatXOF(val, { compact: true })}
+                domain={['auto', 'auto']}
+                padding={{ top: 20, bottom: 20 }}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
