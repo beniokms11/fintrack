@@ -54,7 +54,7 @@ export default function DashboardPage() {
               <span className="dashboard-logo-icon">📊</span>
               <span className="dashboard-logo-text">FinTrack</span>
             </div>
-            <span className="dashboard-greeting">{getGreeting()} 👋</span>
+            <span className="dashboard-greeting" suppressHydrationWarning>{getGreeting()} 👋</span>
           </div>
           <div className="dashboard-header-actions">
             <button className="btn btn-icon btn-ghost" aria-label="Notifications" id="btn-notifications">
