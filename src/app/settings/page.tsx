@@ -73,7 +73,11 @@ export default function SettingsPage() {
                 {section.items.map((item, i) => (
                   <div
                     key={item.label}
-                    onClick={item.action === 'toggle' ? toggleTheme : undefined}
+                    onClick={item.action === 'toggle' ? toggleTheme : () => {
+                      if (item.action === 'chevron') {
+                        alert('Cette fonctionnalité sera bientôt disponible dans la prochaine mise à jour !')
+                      }
+                    }}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                       padding: 'var(--space-lg)', cursor: 'pointer',
