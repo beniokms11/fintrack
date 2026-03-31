@@ -1,0 +1,1 @@
+src/components/transactions/AddTransactionModal.tsx(25,1): error TS1109: Expression expected.
