@@ -38,6 +38,16 @@ interface AppState {
     color: string
   }) => Promise<void>
   updateSavingsGoalAmount: (goalId: string, additionalAmount: number) => Promise<void>
+  addWallet: (data: {
+    name: string
+    type: string
+    balance: number
+    icon: string
+    color: string
+  }) => Promise<void>
+  updateProfile: (data: {
+    full_name?: string
+  }) => Promise<void>
   setGlobalAddModalOpen: (open: boolean) => void
 }
 
@@ -339,12 +349,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }, [supabase, fetchData])
 
-  const updateSavingsGoalAmount = useCallback(async (goalId: string, additionalAmount: number) => {
-    const { data: goal } = await supabase.from('savings_goals').select('current_amount').eq('id', goalId).single()
-    if (!goal) return
+  const addWallet = useCallback(async (data: {
+    name: string
+    type: string
+    balance: number
+    icon: string
+    color: string
+  }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
 
-    const newAmount = Number(goal.current_amount) + additionalAmount
-    const { error } = await supabase.from('savings_goals').update({ current_amount: newAmount }).eq('id', goalId)
+    const { error } = await supabase.from('wallets').insert({
+      user_id: user.id,
+      ...data
+    })
+
+    if (error) {
+      console.error(error)
+      return
+    }
+
+    await fetchData()
+  }, [supabase, fetchData])
+
+  const updateProfile = useCallback(async (data: {
+    full_name?: string
+  }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { error } = await supabase.from('profiles').update(data).eq('id', user.id)
 
     if (error) {
       console.error(error)
@@ -370,6 +404,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addBudget,
       addSavingsGoal,
       updateSavingsGoalAmount,
+      addWallet,
+      updateProfile,
       setGlobalAddModalOpen,
     }}>
       {children}

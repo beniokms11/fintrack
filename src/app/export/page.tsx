@@ -30,6 +30,10 @@ export default function ExportPage() {
     URL.revokeObjectURL(url)
   }
 
+  const handleExportPDF = () => {
+    window.print()
+  }
+
   return (
     <>
       <div className="page">
@@ -64,23 +68,78 @@ export default function ExportPage() {
             </button>
           </div>
 
-          <div className="card" style={{ opacity: 0.6 }}>
+          <div className="card" style={{ cursor: 'pointer' }} onClick={handleExportPDF} id="btn-export-pdf">
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
               <div style={{
                 width: 40, height: 40, borderRadius: 'var(--radius-sm)',
-                background: 'var(--color-surface-hover)', display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-              }}>📄</div>
+                background: 'var(--color-accent-light)', color: 'var(--color-accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}><Download size={18} /></div>
               <div style={{ flex: 1 }}>
-                <span style={{ display: 'block', fontWeight: 500 }}>Export PDF</span>
-                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>Bientôt disponible</span>
+                <span style={{ display: 'block', fontWeight: 500 }}>Exporter en PDF</span>
+                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>Prêt pour l'impression</span>
               </div>
-              <span className="badge">v2</span>
+              <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
             </div>
+          </div>
+
+          <div id="print-content" className="print-only">
+            <h1>Rapport Financier - FinTrack</h1>
+            <p>Généré le {new Date().toLocaleDateString()}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Description</th>
+                  <th>Catégorie</th>
+                  <th>Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactions.map(tx => (
+                  <tr key={tx.id}>
+                    <td>{tx.date}</td>
+                    <td>{tx.description}</td>
+                    <td>{tx.category?.name}</td>
+                    <td style={{ color: tx.type === 'income' ? '#10B981' : '#EF4444' }}>
+                      {tx.type === 'income' ? '+' : '-'}{tx.amount} FCFA
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
       <BottomNav />
+      <style jsx>{`
+        .print-only {
+          display: none;
+        }
+        @media print {
+          :global(nav), :global(header), :global(.btn), :global(.card) {
+            display: none !important;
+          }
+          .print-only {
+            display: block !important;
+            padding: 20px;
+            color: black !important;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+          }
+          th {
+            background-color: #f5f5f5;
+          }
+        }
+      `}</style>
     </>
   )
 }

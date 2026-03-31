@@ -13,22 +13,22 @@ export default function SettingsPage() {
     {
       title: 'Compte',
       items: [
-        { icon: User, label: 'Profil', subtitle: 'Nom, email', action: 'chevron' },
-        { icon: Globe, label: 'Langue', subtitle: 'Français', action: 'chevron' },
-        { icon: Shield, label: 'Sécurité', subtitle: 'Mot de passe', action: 'chevron' },
+        { icon: User, label: 'Profil', subtitle: 'Nom, email', href: '/settings/profile' },
+        { icon: Globe, label: 'Langue', subtitle: 'Français', href: '/settings/language' },
+        { icon: Shield, label: 'Sécurité', subtitle: 'Mot de passe', href: '/settings/security' },
       ],
     },
     {
       title: 'Préférences',
       items: [
         { icon: theme === 'dark' ? Moon : Sun, label: 'Mode sombre', subtitle: theme === 'dark' ? 'Activé' : 'Désactivé', action: 'toggle' },
-        { icon: Bell, label: 'Notifications', subtitle: 'Activées', action: 'chevron' },
+        { icon: Bell, label: 'Notifications', subtitle: 'Bientôt disponible', action: 'chevron' },
       ],
     },
     {
       title: 'Aide',
       items: [
-        { icon: HelpCircle, label: 'Centre d\'aide', subtitle: '', action: 'chevron' },
+        { icon: HelpCircle, label: 'Centre d\'aide', subtitle: 'FAQ, Support', href: '/settings/help' },
       ],
     },
   ]
@@ -70,20 +70,8 @@ export default function SettingsPage() {
                 {section.title}
               </h3>
               <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                {section.items.map((item, i) => (
-                  <div
-                    key={item.label}
-                    onClick={item.action === 'toggle' ? toggleTheme : () => {
-                      if (item.action === 'chevron') {
-                        alert('Cette fonctionnalité sera bientôt disponible dans la prochaine mise à jour !')
-                      }
-                    }}
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: 'var(--space-lg)', cursor: 'pointer',
-                      borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
-                    }}
-                  >
+                {section.items.map((item: any, i) => {
+                  const content = (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                       <div style={{
                         width: 36, height: 36, borderRadius: 'var(--radius-sm)',
@@ -100,24 +88,72 @@ export default function SettingsPage() {
                         )}
                       </div>
                     </div>
-                    {item.action === 'toggle' ? (
-                      <div style={{
-                        width: 44, height: 24, borderRadius: 12,
-                        background: theme === 'dark' ? 'var(--color-accent)' : 'var(--color-border)',
-                        position: 'relative', transition: 'background var(--transition-fast)',
-                      }}>
+                  )
+
+                  if (item.action === 'toggle') {
+                    return (
+                      <div
+                        key={item.label}
+                        onClick={toggleTheme}
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: 'var(--space-lg)', cursor: 'pointer',
+                          borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                        }}
+                      >
+                        {content}
                         <div style={{
-                          width: 20, height: 20, borderRadius: 10,
-                          background: 'white', position: 'absolute', top: 2,
-                          left: theme === 'dark' ? 22 : 2,
-                          transition: 'left var(--transition-fast)',
-                        }} />
+                          width: 44, height: 24, borderRadius: 12,
+                          background: theme === 'dark' ? 'var(--color-accent)' : 'var(--color-border)',
+                          position: 'relative', transition: 'background var(--transition-fast)',
+                        }}>
+                          <div style={{
+                            width: 20, height: 20, borderRadius: 10,
+                            background: 'white', position: 'absolute', top: 2,
+                            left: theme === 'dark' ? 22 : 2,
+                            transition: 'left var(--transition-fast)',
+                          }} />
+                        </div>
                       </div>
-                    ) : (
+                    )
+                  }
+
+                  if (item.href) {
+                    return (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        style={{
+                          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                          padding: 'var(--space-lg)', cursor: 'pointer', color: 'inherit', textDecoration: 'none',
+                          borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                        }}
+                      >
+                        {content}
+                        <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
+                      </Link>
+                    )
+                  }
+
+                  return (
+                    <div
+                      key={item.label}
+                      onClick={() => {
+                        if (item.action === 'chevron' || !item.href) {
+                          alert('Cette fonctionnalité sera bientôt disponible dans la prochaine mise à jour !')
+                        }
+                      }}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: 'var(--space-lg)', cursor: 'pointer',
+                        borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
+                      }}
+                    >
+                      {content}
                       <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           ))}

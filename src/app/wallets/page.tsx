@@ -1,13 +1,16 @@
 'use client'
 
+import { useState } from 'react'
 import BottomNav from '@/components/navigation/BottomNav'
 import { useApp } from '@/components/providers/AppProvider'
 import { formatXOF } from '@/lib/utils'
 import { ArrowLeft, Plus } from 'lucide-react'
 import Link from 'next/link'
+import AddWalletModal from '@/components/wallets/AddWalletModal'
 
 export default function WalletsPage() {
-  const { wallets } = useApp()
+  const { wallets, addWallet } = useApp()
+  const [showModal, setShowModal] = useState(false)
   const total = wallets.reduce((sum, w) => sum + Number(w.balance), 0)
 
   return (
@@ -18,7 +21,11 @@ export default function WalletsPage() {
             <Link href="/more" className="btn btn-icon btn-ghost"><ArrowLeft size={20} /></Link>
             <h1 className="page-title">Portefeuilles</h1>
           </div>
-          <button className="btn btn-sm btn-primary" id="btn-new-wallet">
+          <button 
+            className="btn btn-sm btn-primary" 
+            id="btn-new-wallet"
+            onClick={() => setShowModal(true)}
+          >
             <Plus size={16} /> Ajouter
           </button>
         </header>
@@ -52,6 +59,11 @@ export default function WalletsPage() {
         </div>
       </div>
       <BottomNav />
+      <AddWalletModal 
+        isOpen={showModal} 
+        onClose={() => setShowModal(false)} 
+        onSave={addWallet} 
+      />
     </>
   )
 }
