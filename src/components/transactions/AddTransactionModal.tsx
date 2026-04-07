@@ -1,14 +1,16 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, ChevronDown, Calendar, Plus, Check } from 'lucide-react'
 import { TransactionType } from '@/lib/types'
 import { useApp } from '../providers/AppProvider'
+import AddCategoryModal from '../categories/AddCategoryModal'
 
 interface AddTransactionModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave?: (data: TransactionFormState) => void
+  onSave?: (data: TransactionFormState, id?: string) => void
+  initialData?: any
 }
 
 interface TransactionFormState {
@@ -21,7 +23,7 @@ interface TransactionFormState {
   merchant: string
 }
 
-export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTransactionModalProps) {
+export default function AddTransactionModal({ isOpen, onClose, onSave, initialData }: AddTransactionModalProps) {
   const { categories: appCategories, wallets: appWallets } = useApp()
   const [form, setForm] = useState<TransactionFormState>({
     type: 'expense',
@@ -34,8 +36,33 @@ export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTran
   })
   const [showCategories, setShowCategories] = useState(false)
   const [showWallets, setShowWallets] = useState(false)
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setForm({
+        type: initialData.type || 'expense',
+        amount: initialData.amount ? String(initialData.amount) : '',
+        category_id: initialData.category_id || '',
+        wallet_id: initialData.wallet_id || appWallets[0]?.id || '',
+        date: initialData.date || new Date().toISOString().slice(0, 10),
+        description: initialData.description || '',
+        merchant: initialData.merchant || '',
+      })
+    } else if (isOpen && !initialData) {
+      setForm({
+        type: 'expense',
+        amount: '',
+        category_id: '',
+        wallet_id: appWallets[0]?.id || '',
+        date: new Date().toISOString().slice(0, 10),
+        description: '',
+        merchant: '',
+      })
+    }
+  }, [isOpen, initialData, appWallets])
 
   if (!isOpen) return null
 
@@ -59,7 +86,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTran
     setSaved(true)
 
     if (onSave) {
-      onSave(form)
+      onSave(form, initialData?.id)
     }
 
     setTimeout(() => {
@@ -104,7 +131,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTran
 
         {/* Header */}
         <div className="atm-header">
-          <h2 className="atm-title">Nouvelle transaction</h2>
+          <h2 className="atm-title">{initialData ? 'Modifier transaction' : 'Nouvelle transaction'}</h2>
           <button className="btn btn-icon btn-ghost" onClick={handleClose} aria-label="Fermer">
             <X size={20} />
           </button>
@@ -176,6 +203,18 @@ export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTran
                     {form.category_id === cat.id && <Check size={16} style={{ color: 'var(--color-accent)' }} />}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="atm-picker-item add-new-item"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCategories(false);
+                    setShowAddCategoryModal(true);
+                  }}
+                  style={{ color: 'var(--color-accent)', fontWeight: 600, justifyContent: 'center' }}
+                >
+                  <Plus size={16} /> Ajouter une catégorie personnalisée
+                </button>
               </div>
             )}
           </div>
@@ -273,15 +312,28 @@ export default function AddTransactionModal({ isOpen, onClose, onSave }: AddTran
               'Enregistrer'
             )}
           </button>
-          <button
-            className="btn btn-secondary atm-save-another"
-            onClick={() => handleSave(true)}
-            disabled={!isValid || saving}
-            id="btn-save-and-add"
-          >
-            <Plus size={16} /> Enregistrer et ajouter
-          </button>
+          {!initialData && (
+            <button
+              className="btn btn-secondary atm-save-another"
+              onClick={() => handleSave(true)}
+              disabled={!isValid || saving}
+              id="btn-save-and-add"
+            >
+              <Plus size={16} /> Enregistrer et ajouter
+            </button>
+          )}
         </div>
+
+        {/* Nested Add Category Modal */}
+        <AddCategoryModal
+          isOpen={showAddCategoryModal}
+          onClose={() => setShowAddCategoryModal(false)}
+          defaultType={form.type}
+          onSuccess={(catId) => {
+            setForm(f => ({ ...f, category_id: catId }))
+            setShowAddCategoryModal(false)
+          }}
+        />
 
         <style jsx>{`
           .atm-header {

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/providers/ThemeProvider'
 import { AppProvider } from '@/components/providers/AppProvider'
-import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: 'FinTrack — Suivi financier personnel',
@@ -22,8 +21,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F5F5F7' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F1117' },
+    { media: '(prefers-color-scheme: light)', color: '#F5F7FA' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B0D14' },
   ],
 }
 
@@ -35,6 +34,10 @@ export default function RootLayout({
   return (
     <html lang="fr" suppressHydrationWarning>
       <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Manrope:wght@400;600;700;800&display=swap"
+          rel="stylesheet"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `

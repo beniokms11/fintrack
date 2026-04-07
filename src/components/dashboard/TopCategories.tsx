@@ -34,7 +34,7 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
               </div>
             </div>
             <div className="category-value">
-              <span className="category-amount tabular-nums">{formatXOF(item.total)}</span>
+              <span className="category-amount tabular-nums font-headline">{formatXOF(item.total)}</span>
               <span className="category-pct">{formatPercent(item.percentage)}</span>
             </div>
           </div>
@@ -44,9 +44,14 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
       <style jsx>{`
         .top-categories-card {
           background: var(--color-surface);
-          border: 1px solid var(--color-border);
+          border: none;
           border-radius: var(--radius-lg);
-          padding: var(--space-lg);
+          padding: var(--space-xl) var(--space-lg);
+          box-shadow: var(--shadow-sm);
+          transition: all var(--transition-base);
+        }
+        .top-categories-card:hover {
+          box-shadow: var(--shadow-md);
         }
         .category-list {
           display: flex;
@@ -57,18 +62,20 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
           display: flex;
           align-items: center;
           gap: var(--space-md);
+          padding: var(--space-xs) 0;
         }
         .category-rank {
-          width: 20px;
+          width: 22px;
           font-size: var(--font-size-sm);
-          font-weight: 600;
+          font-weight: 700;
+          font-family: var(--font-headline);
           color: var(--color-text-tertiary);
           text-align: center;
           flex-shrink: 0;
         }
         .category-icon-wrap {
-          width: 36px;
-          height: 36px;
+          width: 38px;
+          height: 38px;
           border-radius: var(--radius-sm);
           display: flex;
           align-items: center;
@@ -81,17 +88,17 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
           min-width: 0;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 5px;
         }
         .category-name {
           font-size: var(--font-size-base);
-          font-weight: 500;
+          font-weight: 600;
           color: var(--color-text-primary);
         }
         .category-bar-wrap {
           width: 100%;
-          height: 4px;
-          background: var(--color-border-light);
+          height: 5px;
+          background: var(--color-surface-container);
           border-radius: var(--radius-full);
           overflow: hidden;
         }
@@ -107,13 +114,14 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
         .category-amount {
           display: block;
           font-size: var(--font-size-base);
-          font-weight: 600;
+          font-weight: 700;
           color: var(--color-text-primary);
         }
         .category-pct {
           display: block;
           font-size: var(--font-size-xs);
           color: var(--color-text-tertiary);
+          font-weight: 500;
         }
       `}</style>
     </div>

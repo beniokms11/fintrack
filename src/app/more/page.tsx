@@ -130,106 +130,26 @@ export default function MorePage() {
       <BottomNav />
 
       <style jsx>{`
-        .savings-preview-list {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-md);
-        }
-        .savings-preview-item {
-          display: flex;
-          align-items: center;
-          gap: var(--space-md);
-        }
-        .savings-preview-icon {
-          width: 40px;
-          height: 40px;
-          border-radius: var(--radius-md);
-          background: var(--color-bg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          flex-shrink: 0;
-        }
-        .savings-preview-info {
-          flex: 1;
-          min-width: 0;
-        }
-        .savings-preview-name {
-          font-size: var(--font-size-base);
-          font-weight: 500;
-          color: var(--color-text-primary);
-        }
-        .savings-preview-amounts {
-          display: block;
-          margin-top: 4px;
-          font-size: var(--font-size-xs);
-          color: var(--color-text-tertiary);
-        }
-        .menu-section {
-          display: flex;
-          flex-direction: column;
-          gap: var(--space-sm);
-        }
-        .menu-section-title {
-          font-size: var(--font-size-sm);
-          font-weight: 600;
-          color: var(--color-text-secondary);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .menu-list {
-          padding: 0 !important;
-          overflow: hidden;
-        }
-        .menu-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: var(--space-lg);
-          text-decoration: none;
-          color: inherit;
-          transition: background var(--transition-fast);
-        }
-        .menu-item:hover {
-          background: var(--color-surface-hover);
-        }
-        .menu-item-bordered {
-          border-bottom: 1px solid var(--color-border-light);
-        }
-        .menu-item-left {
-          display: flex;
-          align-items: center;
-          gap: var(--space-md);
-        }
-        .menu-item-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: var(--radius-sm);
-          background: var(--color-bg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: var(--color-text-secondary);
-        }
-        .menu-item-label {
-          font-size: var(--font-size-base);
-          font-weight: 500;
-          color: var(--color-text-primary);
-        }
-        .menu-item-right {
-          display: flex;
-          align-items: center;
-          gap: var(--space-sm);
-        }
-        .menu-item-badge {
-          font-size: var(--font-size-xs);
-          font-weight: 600;
-          padding: 2px 8px;
-          border-radius: var(--radius-full);
-          background: var(--color-accent-light);
-          color: var(--color-accent);
-        }
+        .savings-preview-list { display: flex; flex-direction: column; gap: var(--space-md); }
+        .savings-preview-item { display: flex; align-items: center; gap: var(--space-md); }
+        .savings-preview-icon { width: 44px; height: 44px; border-radius: var(--radius-md); background: var(--color-surface-container-low); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+        .savings-preview-info { flex: 1; min-width: 0; }
+        .savings-preview-name { font-size: var(--font-size-base); font-weight: 600; color: var(--color-text-primary); }
+        .savings-preview-amounts { display: block; margin-top: 6px; font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-tertiary); }
+        
+        .menu-section { display: flex; flex-direction: column; gap: var(--space-sm); margin-bottom: var(--space-xl); }
+        .menu-section-title { font-size: 11px; font-weight: 700; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding-left: var(--space-md); }
+        .menu-list { background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: var(--space-lg); text-decoration: none; color: inherit; transition: background var(--transition-fast); cursor: pointer; }
+        .menu-item:hover { background: var(--color-surface-hover); }
+        .menu-item-bordered { border-bottom: 1px solid var(--color-border-light); }
+        .menu-item-left { display: flex; align-items: center; gap: var(--space-md); }
+        .menu-item-icon { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-surface-container-low); display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); transition: transform var(--transition-fast); }
+        .menu-item:hover .menu-item-icon { transform: scale(1.05); color: var(--color-accent); }
+        .menu-item-label { font-size: 16px; font-weight: 600; color: var(--color-text-primary); }
+        .menu-item-right { display: flex; align-items: center; gap: var(--space-sm); }
+        .menu-item-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-full); background: var(--color-accent-light); color: var(--color-accent); letter-spacing: 0.02em; }
+        #savings-preview { border-radius: var(--radius-xl); box-shadow: var(--shadow-md); padding: var(--space-xl); margin-bottom: var(--space-2xl); background: var(--color-surface); }
       `}</style>
     </>
   )

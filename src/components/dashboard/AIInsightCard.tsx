@@ -25,7 +25,7 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
     <div className="ai-insight-card" id="card-ai-insight">
       <div className="ai-header">
         <div className="ai-badge">
-          <Brain size={14} />
+          <Brain size={13} />
           <span>FinTrack AI</span>
         </div>
       </div>
@@ -35,7 +35,7 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
           <config.Icon size={18} />
         </div>
         <div className="ai-insight-content">
-          <span className="ai-insight-title">{primary.title}</span>
+          <span className="ai-insight-title font-headline">{primary.title}</span>
           <p className="ai-insight-message">{primary.message}</p>
         </div>
       </div>
@@ -49,19 +49,24 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
       <style jsx>{`
         .ai-insight-card {
           background: var(--color-surface);
-          border: 1px solid var(--color-border);
+          border: none;
           border-radius: var(--radius-lg);
-          padding: var(--space-lg);
+          padding: var(--space-xl) var(--space-lg);
+          box-shadow: var(--shadow-sm);
           position: relative;
           overflow: hidden;
+          transition: all var(--transition-base);
+        }
+        .ai-insight-card:hover {
+          box-shadow: var(--shadow-md);
         }
         .ai-insight-card::after {
           content: '';
           position: absolute;
           top: 0;
           right: 0;
-          width: 100px;
-          height: 100px;
+          width: 120px;
+          height: 120px;
           background: radial-gradient(circle at top right, var(--color-accent-subtle), transparent 70%);
           pointer-events: none;
         }
@@ -72,20 +77,22 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
           display: inline-flex;
           align-items: center;
           gap: var(--space-xs);
-          padding: 3px 10px;
+          padding: 4px 12px;
           font-size: var(--font-size-xs);
-          font-weight: 600;
+          font-weight: 700;
+          font-family: var(--font-headline);
           border-radius: var(--radius-full);
           background: var(--color-accent-light);
           color: var(--color-accent);
+          letter-spacing: 0.02em;
         }
         .ai-insight-main {
           display: flex;
           gap: var(--space-md);
         }
         .ai-insight-icon {
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           border-radius: var(--radius-sm);
           display: flex;
           align-items: center;
@@ -98,9 +105,9 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
         .ai-insight-title {
           display: block;
           font-size: var(--font-size-base);
-          font-weight: 600;
+          font-weight: 700;
           color: var(--color-text-primary);
-          margin-bottom: 2px;
+          margin-bottom: 3px;
         }
         .ai-insight-message {
           font-size: var(--font-size-sm);
@@ -115,8 +122,11 @@ export default function AIInsightCard({ insights }: AIInsightCardProps) {
         .ai-insight-more-text {
           font-size: var(--font-size-xs);
           color: var(--color-accent);
-          font-weight: 500;
+          font-weight: 600;
           cursor: pointer;
+        }
+        .ai-insight-more-text:hover {
+          text-decoration: underline;
         }
       `}</style>
     </div>

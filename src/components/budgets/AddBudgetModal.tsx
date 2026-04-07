@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { X, ChevronDown, Check } from 'lucide-react'
+import { X, ChevronDown, Check, Plus } from 'lucide-react'
 import { useApp } from '../providers/AppProvider'
+import AddCategoryModal from '../categories/AddCategoryModal'
 
 interface AddBudgetModalProps {
   isOpen: boolean
@@ -22,6 +23,7 @@ export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetMod
   })
   
   const [showCategories, setShowCategories] = useState(false)
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -134,6 +136,18 @@ export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetMod
                     {form.category_id === cat.id && <Check size={16} style={{ color: 'var(--color-accent)' }} />}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="atm-picker-item add-new-item"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowCategories(false);
+                    setShowAddCategoryModal(true);
+                  }}
+                  style={{ color: 'var(--color-accent)', fontWeight: 600, justifyContent: 'center' }}
+                >
+                  <Plus size={16} /> Ajouter une catégorie personnalisée
+                </button>
               </div>
             )}
           </div>
@@ -175,6 +189,17 @@ export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetMod
             )}
           </button>
         </div>
+
+        {/* Nested Add Category Modal */}
+        <AddCategoryModal
+          isOpen={showAddCategoryModal}
+          onClose={() => setShowAddCategoryModal(false)}
+          defaultType="expense"
+          onSuccess={(catId) => {
+            setForm(f => ({ ...f, category_id: catId }))
+            setShowAddCategoryModal(false)
+          }}
+        />
 
         <style jsx>{`
           .atm-header {

@@ -6,11 +6,14 @@ import { formatXOF, formatDate } from '@/lib/utils'
 import { Transaction } from '@/lib/types'
 import BottomNav from '@/components/navigation/BottomNav'
 import AddTransactionModal from '@/components/transactions/AddTransactionModal'
-import { Search, ArrowUpRight, ArrowDownRight, X } from 'lucide-react'
+import { Search, ArrowUpRight, ArrowDownRight, X, Trash2, Pencil } from 'lucide-react'
 
 export default function TransactionsPage() {
-  const { transactions, addTransaction, loading } = useApp()
+  const { transactions, addTransaction, deleteTransaction, updateTransaction, loading } = useApp()
   const [search, setSearch] = useState('')
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null)
+  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   if (loading) {
     return (
@@ -22,8 +25,6 @@ export default function TransactionsPage() {
       </div>
     )
   }
-  const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all')
-  const [showAddModal, setShowAddModal] = useState(false)
 
   const filtered = transactions.filter(tx => {
     const matchesSearch = tx.description.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,6 +107,31 @@ export default function TransactionsPage() {
                           {tx.type === 'income' ? '+' : '-'}{formatXOF(tx.amount)}
                         </span>
                         {tx.type === 'income' ? <ArrowUpRight size={14} style={{ color: 'var(--color-income)' }} /> : <ArrowDownRight size={14} style={{ color: 'var(--color-expense)' }} />}
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEditingTx(tx)
+                            setShowAddModal(true)
+                          }}
+                          className="btn-icon btn-ghost"
+                          style={{ color: 'var(--color-text-secondary)', padding: '4px', marginLeft: '8px' }}
+                          title="Modifier"
+                        >
+                          <Pencil size={16} />
+                        </button>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (window.confirm('Supprimer cette transaction ?')) {
+                              deleteTransaction(tx.id)
+                            }
+                          }}
+                          className="btn-icon btn-ghost"
+                          style={{ color: 'var(--color-expense)', padding: '4px' }}
+                          title="Supprimer"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -116,32 +142,48 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <BottomNav onAddClick={() => setShowAddModal(true)} />
+      <BottomNav onAddClick={() => {
+        setEditingTx(null)
+        setShowAddModal(true)
+      }} />
       <AddTransactionModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onSave={(data) => addTransaction({ ...data, amount: parseFloat(data.amount) })}
+        onClose={() => {
+          setShowAddModal(false)
+          setEditingTx(null)
+        }}
+        initialData={editingTx}
+        onSave={(data, id) => {
+          if (id) {
+            updateTransaction(id, { ...data, amount: parseFloat(data.amount) })
+          } else {
+            addTransaction({ ...data, amount: parseFloat(data.amount) })
+          }
+        }}
       />
 
       <style jsx>{`
-        .search-bar { position: relative; display: flex; align-items: center; }
-        :global(.search-icon) { position: absolute; left: 14px; color: var(--color-text-tertiary); pointer-events: none; }
-        .search-input { width: 100%; font-family: var(--font-family); font-size: var(--font-size-base); padding: var(--space-md) var(--space-lg) var(--space-md) 42px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text-primary); outline: none; transition: border-color var(--transition-fast); }
+        .search-bar { position: relative; display: flex; align-items: center; margin-bottom: var(--space-lg); }
+        :global(.search-icon) { position: absolute; left: 16px; color: var(--color-text-tertiary); pointer-events: none; }
+        .search-input { width: 100%; font-family: var(--font-family); font-size: var(--font-size-base); padding: var(--space-lg) var(--space-lg) var(--space-lg) 48px; border: none; border-radius: var(--radius-xl); background: var(--color-surface); color: var(--color-text-primary); box-shadow: var(--shadow-sm); outline: none; transition: box-shadow var(--transition-fast); }
         .search-input::placeholder { color: var(--color-text-tertiary); }
-        .search-input:focus { border-color: var(--color-accent); }
+        .search-input:focus { box-shadow: var(--shadow-md); }
         .search-clear { position: absolute; right: 12px; background: none; border: none; color: var(--color-text-tertiary); cursor: pointer; padding: 4px; }
-        .filter-tabs { display: flex; gap: var(--space-xs); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 3px; }
-        .filter-tab { flex: 1; padding: var(--space-sm) var(--space-md); font-family: var(--font-family); font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text-tertiary); background: transparent; border: none; border-radius: var(--radius-sm); cursor: pointer; transition: all var(--transition-fast); }
-        .filter-tab.active { background: var(--color-accent); color: white; }
-        .tx-groups { display: flex; flex-direction: column; gap: var(--space-xl); }
-        .tx-group-date { font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text-secondary); margin-bottom: var(--space-sm); text-transform: capitalize; }
-        .tx-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-md); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); margin-bottom: var(--space-sm); }
-        .tx-row-icon { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--color-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 18px; }
-        .tx-row-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-        .tx-row-desc { font-size: var(--font-size-base); font-weight: 500; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tx-row-meta { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
-        .tx-row-amount-wrap { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
-        .tx-row-amount { font-size: var(--font-size-base); font-weight: 600; }
+        .filter-tabs { display: flex; gap: var(--space-sm); background: transparent; padding: 4px 0; margin-bottom: var(--space-xl); }
+        .filter-tab { flex: 1; padding: 12px 16px; font-family: var(--font-headline); font-size: 13px; font-weight: 700; color: var(--color-text-secondary); background: var(--color-surface); border: 2px solid transparent; border-radius: var(--radius-full); cursor: pointer; transition: all var(--transition-base); box-shadow: var(--shadow-sm); }
+        .filter-tab.active { background: var(--color-accent); color: white; border-color: var(--color-accent); box-shadow: 0 8px 16px var(--color-accent-glow); }
+        .tx-groups { display: flex; flex-direction: column; gap: var(--space-2xl); padding-bottom: 100px; }
+        .tx-group { display: flex; flex-direction: column; gap: var(--space-md); }
+        .tx-group-date { font-size: 12px; font-weight: 700; font-family: var(--font-headline); color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; padding-left: var(--space-sm); }
+        .tx-row { display: flex; align-items: center; gap: var(--space-md); padding: var(--space-lg); background: var(--color-surface); border: none; border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); transition: transform var(--transition-fast), box-shadow var(--transition-fast); }
+        .tx-row:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); background: var(--color-surface); }
+        .tx-row-icon { width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--color-surface-container-low); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; transition: transform var(--transition-fast); }
+        .tx-row:hover .tx-row-icon { transform: scale(1.05); }
+        .tx-row-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+        .tx-row-desc { font-size: 16px; font-weight: 700; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tx-row-meta { font-size: 12px; font-weight: 500; color: var(--color-text-tertiary); }
+        .tx-row-amount-wrap { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .tx-row-amount { font-size: 18px; font-weight: 800; font-family: var(--font-headline); }
       `}</style>
     </>
   )

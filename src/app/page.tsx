@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useApp } from '@/components/providers/AppProvider'
+import { useTheme } from '@/components/providers/ThemeProvider'
 import { getGreeting } from '@/lib/utils'
 import BottomNav from '@/components/navigation/BottomNav'
 import StatsCards from '@/components/dashboard/StatsCards'
@@ -12,11 +13,13 @@ import TopCategories from '@/components/dashboard/TopCategories'
 import AIInsightCard from '@/components/dashboard/AIInsightCard'
 import TrackingCurve from '@/components/dashboard/TrackingCurve'
 import AddTransactionModal from '@/components/transactions/AddTransactionModal'
-import { Bell } from 'lucide-react'
+import { Bell, Sun, Moon, Plus } from 'lucide-react'
 
 export default function DashboardPage() {
   const [showAddModal, setShowAddModal] = useState(false)
-  const { transactions, stats, budgets, topSpending, chartData, aiInsights, addTransaction, loading } = useApp()
+  const [editingTx, setEditingTx] = useState<any>(null)
+  const { profile, transactions, stats, budgets, topSpending, aiInsights, addTransaction, updateTransaction, loading } = useApp()
+  const { theme, toggleTheme } = useTheme()
 
   if (loading) {
     return (
@@ -37,26 +40,47 @@ export default function DashboardPage() {
     date: string
     description: string
     merchant: string
-  }) => {
-    addTransaction({
-      ...data,
-      amount: parseFloat(data.amount),
-    })
+  }, id?: string) => {
+    if (id) {
+      updateTransaction(id, { ...data, amount: parseFloat(data.amount) })
+    } else {
+      addTransaction({
+        ...data,
+        amount: parseFloat(data.amount),
+      })
+    }
   }
+
+  // Get user initials for avatar
+  const initials = profile?.full_name
+    ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : '👤'
 
   return (
     <>
       <div className="page">
-        {/* Header */}
+        {/* Header — Glassmorphic TopAppBar */}
         <header className="dashboard-header" id="dashboard-header">
           <div className="dashboard-header-left">
-            <div className="dashboard-logo">
-              <span className="dashboard-logo-icon">📊</span>
-              <span className="dashboard-logo-text">FinTrack</span>
+            <div className="dashboard-avatar">
+              <span className="dashboard-avatar-text">{initials}</span>
             </div>
-            <span className="dashboard-greeting" suppressHydrationWarning>{getGreeting()} 👋</span>
+            <div className="dashboard-header-info">
+              <span className="dashboard-logo-text font-headline">FinTrack</span>
+              <span className="dashboard-greeting" suppressHydrationWarning>
+                {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''} 👋
+              </span>
+            </div>
           </div>
           <div className="dashboard-header-actions">
+            <button
+              className="btn btn-icon btn-ghost header-theme-btn"
+              onClick={toggleTheme}
+              aria-label="Changer de thème"
+              id="btn-theme-toggle"
+            >
+              {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <button className="btn btn-icon btn-ghost" aria-label="Notifications" id="btn-notifications">
               <Bell size={20} />
             </button>
@@ -65,26 +89,24 @@ export default function DashboardPage() {
 
         {/* Page Content */}
         <div className="page-content">
-          <QuoteCard />
           <StatsCards stats={stats} />
-          <TrackingCurve
-            data={chartData}
-            insight="Ton solde est en hausse de 12,5% sur les 30 derniers jours. Bonne tendance !"
-          />
+          <TrackingCurve />
+          <QuoteCard />
           <AIInsightCard insights={aiInsights} />
           <BudgetProgress budgets={budgets} />
-          <RecentTransactions transactions={transactions} />
+          <RecentTransactions transactions={transactions} onEdit={(tx) => { setEditingTx(tx); setShowAddModal(true) }} />
           <TopCategories categories={topSpending} />
         </div>
       </div>
 
       {/* Bottom Navigation */}
-      <BottomNav onAddClick={() => setShowAddModal(true)} />
+      <BottomNav onAddClick={() => { setEditingTx(null); setShowAddModal(true) }} />
 
       {/* Add Transaction Modal */}
       <AddTransactionModal
         isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
+        onClose={() => { setShowAddModal(false); setEditingTx(null) }}
+        initialData={editingTx}
         onSave={handleSaveTransaction}
       />
 
@@ -96,26 +118,48 @@ export default function DashboardPage() {
           padding: var(--space-lg) var(--space-lg) var(--space-md);
           position: sticky;
           top: 0;
-          background: var(--color-bg);
+          background: rgba(245, 247, 250, 0.8);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           z-index: 50;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+        [data-theme="dark"] .dashboard-header {
+          background: rgba(11, 13, 20, 0.8);
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         .dashboard-header-left {
           display: flex;
-          flex-direction: column;
-          gap: 2px;
+          align-items: center;
+          gap: var(--space-md);
         }
-        .dashboard-logo {
+        .dashboard-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: var(--radius-full);
+          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
           display: flex;
           align-items: center;
-          gap: var(--space-sm);
+          justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
         }
-        .dashboard-logo-icon {
-          font-size: 20px;
+        .dashboard-avatar-text {
+          font-size: var(--font-size-sm);
+          font-weight: 700;
+          color: white;
+          font-family: var(--font-headline);
+          letter-spacing: 0.02em;
+        }
+        .dashboard-header-info {
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
         }
         .dashboard-logo-text {
           font-size: var(--font-size-lg);
           font-weight: 800;
-          color: var(--color-text-primary);
+          color: var(--color-accent);
           letter-spacing: -0.03em;
         }
         .dashboard-greeting {
@@ -126,6 +170,9 @@ export default function DashboardPage() {
           display: flex;
           align-items: center;
           gap: var(--space-xs);
+        }
+        .header-theme-btn {
+          border-radius: var(--radius-full);
         }
       `}</style>
     </>

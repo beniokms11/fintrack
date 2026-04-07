@@ -134,10 +134,10 @@ export default function LoginPage() {
           width: 100%;
           max-width: 400px;
           background: var(--color-surface);
-          border: 1px solid var(--color-border);
+          border: none;
           border-radius: var(--radius-xl);
-          padding: var(--space-2xl) var(--space-xl);
-          box-shadow: var(--shadow-lg);
+          padding: var(--space-3xl) var(--space-xl);
+          box-shadow: var(--shadow-xl);
         }
         .login-header {
           text-align: center;

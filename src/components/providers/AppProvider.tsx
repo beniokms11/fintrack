@@ -2,10 +2,11 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Transaction, Wallet, DashboardStats, Budget, SavingsGoal, SpendingByCategory, ChartDataPoint, AIInsight, Category } from '@/lib/types'
+import { Transaction, Wallet, DashboardStats, Budget, SavingsGoal, SpendingByCategory, ChartDataPoint, AIInsight, Category, Profile } from '@/lib/types'
 import { MOCK_CATEGORIES } from '@/lib/mock-data'
 
 interface AppState {
+  profile: Profile | null
   transactions: Transaction[]
   wallets: Wallet[]
   categories: Category[]
@@ -13,7 +14,6 @@ interface AppState {
   budgets: Budget[]
   savingsGoals: SavingsGoal[]
   topSpending: SpendingByCategory[]
-  chartData: ChartDataPoint[]
   aiInsights: AIInsight[]
   loading: boolean
   addTransaction: (data: {
@@ -37,6 +37,12 @@ interface AppState {
     icon: string
     color: string
   }) => Promise<void>
+  addCategory: (data: {
+    name: string
+    type: 'income' | 'expense' | 'both'
+    icon: string
+    color: string
+  }) => Promise<Category | null>
   updateSavingsGoalAmount: (goalId: string, additionalAmount: number) => Promise<void>
   addWallet: (data: {
     name: string
@@ -48,6 +54,8 @@ interface AppState {
   updateProfile: (data: {
     full_name?: string
   }) => Promise<void>
+  updateTransaction: (id: string, data: any) => Promise<void>
+  deleteTransaction: (id: string) => Promise<void>
   setGlobalAddModalOpen: (open: boolean) => void
 }
 
@@ -59,6 +67,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [wallets, setWallets] = useState<Wallet[]>([])
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([])
@@ -72,7 +81,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     balanceChange: 0,
   })
   const [topSpending, setTopSpending] = useState<SpendingByCategory[]>([])
-  const [chartData, setChartData] = useState<ChartDataPoint[]>([])
   const [aiInsights, setAiInsights] = useState<AIInsight[]>([])
 
   const fetchData = useCallback(async () => {
@@ -90,12 +98,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       { data: fetchedTransactions },
       { data: fetchedBudgets },
       { data: fetchedSavings },
+      { data: fetchedProfile },
     ] = await Promise.all([
       supabase.from('wallets').select('*'),
       supabase.from('categories').select('*'),
       supabase.from('transactions').select('*, category:categories(*), wallet:wallets(*)').order('date', { ascending: false }),
       supabase.from('budgets').select('*, category:categories(*)'),
       supabase.from('savings_goals').select('*'),
+      supabase.from('profiles').select('*').single(),
     ])
 
     // Initial setup if empty
@@ -132,11 +142,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const txData = fetchedTransactions || []
     const bData = fetchedBudgets || []
     const sgData = fetchedSavings || []
+    const pData = fetchedProfile || null
 
     setWallets(wData)
     setCategories(cData)
     setTransactions(txData)
     setSavingsGoals(sgData)
+    setProfile(pData)
 
     // Calculate stats
     let balance = 0
@@ -212,52 +224,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
     setBudgets(processedBudgets)
 
-    // Calculate Chart Data (last 7 days for simplicity)
-    const cwData: ChartDataPoint[] = []
-    
-    // First, let's get daily deltas for the last 7 days
-    const dailyDeltas: { dateStr: string; dayName: string; dayInc: number; dayExp: number; dayNet: number }[] = []
-    let totalDeltaInPeriod = 0
-    
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date()
-      d.setDate(d.getDate() - i)
-      const dateStr = d.toISOString().split('T')[0]
-      const dayName = d.toLocaleDateString('fr-FR', { weekday: 'short' })
-      
-      let dayInc = 0
-      let dayExp = 0
-      
-      txData.forEach((tx: any) => {
-        if (tx.date === dateStr) {
-          if (tx.type === 'income') dayInc += Number(tx.amount)
-          if (tx.type === 'expense') dayExp += Number(tx.amount)
-        }
-      })
-      
-      const dayNet = dayInc - dayExp
-      dailyDeltas.push({ dateStr, dayName, dayInc, dayExp, dayNet })
-      if (i > 0) totalDeltaInPeriod += dayNet // We don't subtract today's delta yet if we want beginning of day, but let's do end of day.
-    }
-
-    // Work backwards to find the balance at the end of 7 days ago
-    // balanceToday = balance7DaysAgo + totalDeltaInPeriod
-    // balance7DaysAgo = balance - sum(deltas of all 7 days)
-    const allDeltasSum = dailyDeltas.reduce((sum, d) => sum + d.dayNet, 0)
-    let runningBalance = balance - allDeltasSum
-
-    dailyDeltas.forEach(day => {
-      runningBalance += day.dayNet
-      cwData.push({
-        date: day.dateStr,
-        label: day.dayName,
-        balance: runningBalance,
-        income: day.dayInc,
-        expense: day.dayExp
-      })
-    })
-
-    setChartData(cwData)
 
     // Fetch AI Insights if there are transactions
     if (txData.length > 0) {
@@ -383,6 +349,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }, [supabase, fetchData])
 
+  const addCategory = useCallback(async (data: {
+    name: string
+    type: 'income' | 'expense' | 'both'
+    icon: string
+    color: string
+  }) => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+
+    const { data: newCat, error } = await supabase.from('categories').insert({
+      user_id: user.id,
+      ...data,
+      is_default: false
+    }).select().single()
+
+    if (error) {
+      console.error(error)
+      return null
+    }
+
+    await fetchData()
+    return newCat
+  }, [supabase, fetchData])
+
   const addWallet = useCallback(async (data: {
     name: string
     type: string
@@ -422,8 +412,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }, [supabase, fetchData])
 
+  const deleteTransaction = useCallback(async (id: string) => {
+    const { error } = await supabase.from('transactions').delete().eq('id', id)
+    if (error) {
+      console.error(error)
+      return
+    }
+    await fetchData()
+  }, [supabase, fetchData])
+
+  const updateTransaction = useCallback(async (id: string, data: any) => {
+    const { error } = await supabase.from('transactions').update(data).eq('id', id)
+    if (error) {
+      console.error(error)
+      return
+    }
+    await fetchData()
+  }, [supabase, fetchData])
+
   return (
     <AppContext.Provider value={{
+      profile,
       transactions,
       wallets,
       categories,
@@ -431,15 +440,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       budgets,
       savingsGoals,
       topSpending,
-      chartData,
       aiInsights,
       loading,
       addTransaction,
       addBudget,
+      addCategory,
       addSavingsGoal,
       updateSavingsGoalAmount,
       addWallet,
       updateProfile,
+      deleteTransaction,
+      updateTransaction,
       setGlobalAddModalOpen,
     }}>
       {children}

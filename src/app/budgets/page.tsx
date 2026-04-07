@@ -37,62 +37,197 @@ export default function BudgetsPage() {
             <Plus size={16} /> Nouveau
           </button>
         </header>
-
+        
         <div className="page-content">
-          <div className="card" id="budget-summary">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-              <TrendingDown size={18} style={{ color: 'var(--color-accent)' }} />
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>Budget total du mois</span>
+          <div className="budget-hero-card" id="budget-summary">
+            <span className="bhc-label">TOTAL BUDGET</span>
+            <span className="bhc-balance tabular-nums">{formatXOF(totalBudget)}</span>
+            <div className="bhc-progress-wrap">
+              <span className="bhc-spent-text">{formatXOF(totalSpent)} spent</span>
+              <div className="progress-bar">
+                <div className="progress-bar-fill" style={{
+                  width: `${Math.min(overallPct * 100, 100)}%`,
+                  background: overallPct >= 1 ? 'var(--color-expense)' : overallPct >= 0.8 ? 'var(--color-warning)' : 'var(--color-accent)',
+                }} />
+              </div>
+              <span className="bhc-left-text">
+                {totalBudget - totalSpent > 0 ? `${formatXOF(totalBudget - totalSpent)} left` : 'Limit reached'}
+              </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-              <span className="tabular-nums" style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 700 }}>{formatXOF(totalSpent)}</span>
-              <span style={{ color: 'var(--color-text-tertiary)' }}>/</span>
-              <span className="tabular-nums" style={{ fontSize: 'var(--font-size-md)', color: 'var(--color-text-secondary)' }}>{formatXOF(totalBudget)}</span>
-            </div>
-            <div className="progress-bar" style={{ height: 8, marginTop: 12 }}>
-              <div className="progress-bar-fill" style={{
-                width: `${Math.min(overallPct * 100, 100)}%`,
-                background: overallPct >= 1 ? 'var(--color-expense)' : overallPct >= 0.8 ? 'var(--color-warning)' : 'var(--color-accent)',
-              }} />
-            </div>
-            <span style={{ display: 'block', marginTop: '8px', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-              {totalBudget - totalSpent > 0 ? `Il te reste ${formatXOF(totalBudget - totalSpent)} ce mois` : 'Budget dépassé !'}
-            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-md)' }}>
+          <div className="budget-grid">
             {budgets.map(budget => {
-              const pct = budget.percentage || 0
-              const isOver = pct >= 1
-              const isWarning = pct >= 0.8 && pct < 1
+              const pct = Math.min((budget.percentage || 0) * 100, 100)
+              const isOverBudget = pct >= 100
+              const isWarning = pct >= 80 && pct < 100
+              
+              const strokeColor = isOverBudget ? 'var(--color-expense)' : isWarning ? 'var(--color-warning)' : 'var(--color-accent)'
+              const radius = 32
+              const circumference = 2 * Math.PI * radius
+              const strokeDashoffset = circumference - (pct / 100) * circumference
+
               return (
-                <div key={budget.id} className="card">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontSize: 20 }}>{budget.category?.icon || '📌'}</span>
-                      <span style={{ fontSize: 'var(--font-size-md)', fontWeight: 600 }}>{budget.category?.name}</span>
+                <div key={budget.id} className="budget-card">
+                  <div className="bc-top">
+                    <span className="bc-icon" style={{ color: strokeColor, background: `${strokeColor}15` }}>
+                      {budget.category?.icon || '📌'}
+                    </span>
+                  </div>
+                  
+                  <div className="bc-chart">
+                    <svg width="80" height="80" viewBox="0 0 80 80" style={{ transform: 'rotate(-90deg)' }}>
+                      <circle
+                        cx="40" cy="40" r={radius}
+                        stroke="var(--color-surface-container)"
+                        strokeWidth="8" fill="none"
+                      />
+                      <circle
+                        cx="40" cy="40" r={radius}
+                        stroke={strokeColor}
+                        strokeWidth="8" fill="none"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        strokeLinecap="round"
+                        style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
+                      />
+                    </svg>
+                    <div className="bc-pct">
+                      <span className="bc-pct-text">{Math.round(pct)}%</span>
                     </div>
-                    {isOver && <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 600, padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'var(--color-expense-light)', color: 'var(--color-expense)' }}>Dépassé</span>}
-                    {isWarning && <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 600, padding: '2px 8px', borderRadius: 'var(--radius-full)', background: 'var(--color-warning-light)', color: 'var(--color-warning)' }}>Attention</span>}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '8px' }}>
-                    <span className={`tabular-nums ${isOver ? 'amount-expense' : ''}`} style={{ fontSize: 'var(--font-size-lg)', fontWeight: 700 }}>{formatXOF(budget.spent || 0)}</span>
-                    <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-tertiary)' }}>sur {formatXOF(budget.amount)}</span>
+
+                  <div className="bc-info">
+                    <span className="bc-name">{budget.category?.name}</span>
+                    <span className="bc-amount tabular-nums">
+                      {formatXOF(budget.spent || 0)} <span style={{ opacity: 0.5 }}>/ {formatXOF(budget.amount)}</span>
+                    </span>
                   </div>
-                  <div className="progress-bar">
-                    <div className="progress-bar-fill" style={{
-                      width: `${Math.min(pct * 100, 100)}%`,
-                      background: isOver ? 'var(--color-expense)' : isWarning ? 'var(--color-warning)' : 'var(--color-accent)',
-                    }} />
-                  </div>
-                  <span style={{ display: 'block', marginTop: '8px', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}>
-                    {(budget.remaining || 0) > 0 ? `Reste : ${formatXOF(budget.remaining || 0)}` : 'Limite atteinte'}
-                  </span>
                 </div>
               )
             })}
           </div>
         </div>
+
+        <style jsx>{`
+          .budget-hero-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-2xl) var(--space-xl);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: var(--space-2xl);
+            margin-top: var(--space-md);
+          }
+          .bhc-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-tertiary);
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-sm);
+          }
+          .bhc-balance {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: var(--space-xl);
+          }
+          .bhc-progress-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+          }
+          .bhc-spent-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            align-self: flex-start;
+          }
+          .bhc-left-text {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            align-self: flex-end;
+          }
+          .budget-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+            padding-bottom: 100px;
+          }
+          .budget-card {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: var(--space-sm);
+            transition: transform var(--transition-fast);
+          }
+          .budget-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+          }
+          .bc-top {
+            width: 100%;
+            display: flex;
+            justify-content: flex-start;
+          }
+          .bc-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+          }
+          .bc-chart {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: var(--space-xs) 0;
+          }
+          .bc-pct {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .bc-pct-text {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--color-text-primary);
+          }
+          .bc-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+          .bc-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 130px;
+          }
+          .bc-amount {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+          }
+        `}</style>
       </div>
 
       <BottomNav onAddClick={() => setShowAddModal(true)} />

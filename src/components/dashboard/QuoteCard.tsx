@@ -8,9 +8,8 @@ export default function QuoteCard() {
   const [quote, setQuote] = useState(QUOTES[0])
 
   useEffect(() => {
-    const today = new Date()
-    const dayIndex = today.getDate() % QUOTES.length
-    setQuote(QUOTES[dayIndex])
+    const randomIndex = Math.floor(Math.random() * QUOTES.length)
+    setQuote(QUOTES[randomIndex])
   }, [])
 
   return (
@@ -24,11 +23,16 @@ export default function QuoteCard() {
       <style jsx>{`
         .quote-card {
           background: var(--color-surface);
-          border: 1px solid var(--color-border);
+          border: none;
           border-radius: var(--radius-lg);
-          padding: var(--space-lg);
+          padding: var(--space-xl) var(--space-lg);
+          box-shadow: var(--shadow-sm);
           position: relative;
           overflow: hidden;
+          transition: all var(--transition-base);
+        }
+        .quote-card:hover {
+          box-shadow: var(--shadow-md);
         }
         .quote-card::before {
           content: '';
@@ -37,11 +41,12 @@ export default function QuoteCard() {
           left: 0;
           right: 0;
           height: 3px;
-          background: linear-gradient(90deg, var(--color-accent), transparent);
+          background: linear-gradient(90deg, var(--color-accent), var(--color-accent-hover), transparent);
+          border-radius: 3px 3px 0 0;
         }
         .quote-icon {
-          width: 28px;
-          height: 28px;
+          width: 32px;
+          height: 32px;
           border-radius: var(--radius-sm);
           background: var(--color-accent-light);
           color: var(--color-accent);
@@ -60,7 +65,8 @@ export default function QuoteCard() {
         .quote-author {
           font-size: var(--font-size-xs);
           color: var(--color-text-tertiary);
-          font-weight: 500;
+          font-weight: 600;
+          font-family: var(--font-headline);
         }
       `}</style>
     </div>
