@@ -78,8 +78,8 @@ export function formatPercent(value: number): string {
  */
 export function getGreeting(): string {
   const hour = new Date().getHours()
-  if (hour < 12) return 'Bonjour'
-  if (hour < 18) return 'Bon après-midi'
+  // Before 17:00 (5 PM), say "Bonjour", after say "Bonsoir"
+  if (hour < 17) return 'Bonjour'
   return 'Bonsoir'
 }
 

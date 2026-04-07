@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, ChevronDown, Check, Plus } from 'lucide-react'
 import { useApp } from '../providers/AppProvider'
 import AddCategoryModal from '../categories/AddCategoryModal'
@@ -8,19 +8,31 @@ import AddCategoryModal from '../categories/AddCategoryModal'
 interface AddBudgetModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave?: (data: { category_id: string; amount: number; period: string }) => void
+  initialData?: any
+  onSave?: (data: { category_id: string; amount: number; period: string }, id?: string) => void
 }
 
-export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetModalProps) {
+export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }: AddBudgetModalProps) {
   const { categories: appCategories } = useApp()
   // Filter only categories that can be treated as expenses for budgets
   const expenseCategories = appCategories.filter(c => c.type === 'expense' || c.type === 'both')
   
   const [form, setForm] = useState({
-    category_id: expenseCategories[0]?.id || '',
-    amount: '',
-    period: 'monthly'
+    category_id: initialData?.category_id || expenseCategories[0]?.id || '',
+    amount: initialData?.amount?.toString() || '',
+    period: initialData?.period || 'monthly'
   })
+
+  // Update form when initialData changes
+  useEffect(() => {
+    if (isOpen) {
+      setForm({
+        category_id: initialData?.category_id || expenseCategories[0]?.id || '',
+        amount: initialData?.amount?.toString() || '',
+        period: initialData?.period || 'monthly'
+      })
+    }
+  }, [isOpen, initialData, expenseCategories])
   
   const [showCategories, setShowCategories] = useState(false)
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)
@@ -48,7 +60,7 @@ export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetMod
         category_id: form.category_id,
         amount: parseFloat(form.amount),
         period: form.period
-      })
+      }, initialData?.id)
     }
 
     setTimeout(() => {
@@ -80,7 +92,7 @@ export default function AddBudgetModal({ isOpen, onClose, onSave }: AddBudgetMod
 
         {/* Header */}
         <div className="atm-header">
-          <h2 className="atm-title">Nouveau budget</h2>
+          <h2 className="atm-title">{initialData ? 'Modifier le budget' : 'Nouveau budget'}</h2>
           <button className="btn btn-icon btn-ghost" onClick={handleClose} aria-label="Fermer">
             <X size={20} />
           </button>

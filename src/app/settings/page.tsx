@@ -5,9 +5,25 @@ import { useTheme } from '@/components/providers/ThemeProvider'
 import { ArrowLeft, Moon, Sun, User, Globe, Bell, Shield, HelpCircle, LogOut, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { logout } from './actions'
+import { useApp } from '@/components/providers/AppProvider'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
 export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme()
+  const { profile } = useApp()
+  const [email, setEmail] = useState<string>('')
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) setEmail(data.user.email)
+    })
+  }, [])
+
+  const initials = profile?.full_name 
+    ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'FT'
 
   const sections = [
     {
@@ -45,18 +61,18 @@ export default function SettingsPage() {
 
         <div className="page-content">
           {/* User card */}
-          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-lg)' }}>
+          <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-lg)', borderRadius: 'var(--radius-xl)', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{
               width: 56, height: 56, borderRadius: 'var(--radius-full)',
               background: 'var(--color-accent)', color: 'white',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 'var(--font-size-xl)', fontWeight: 700,
             }}>
-              FT
+              {initials}
             </div>
             <div>
-              <span style={{ display: 'block', fontWeight: 600, fontSize: 'var(--font-size-md)' }}>Utilisateur FinTrack</span>
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>user@fintrack.app</span>
+              <span style={{ display: 'block', fontWeight: 700, fontSize: '18px' }}>{profile?.full_name || 'Utilisateur FinTrack'}</span>
+              <span style={{ fontSize: '13px', color: 'var(--color-text-secondary)', fontWeight: 500 }}>{email || 'Chargement...'}</span>
             </div>
           </div>
 

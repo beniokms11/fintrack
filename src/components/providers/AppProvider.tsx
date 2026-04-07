@@ -56,6 +56,12 @@ interface AppState {
   }) => Promise<void>
   updateTransaction: (id: string, data: any) => Promise<void>
   deleteTransaction: (id: string) => Promise<void>
+  updateWallet: (id: string, data: any) => Promise<void>
+  deleteWallet: (id: string) => Promise<void>
+  updateBudget: (id: string, data: any) => Promise<void>
+  deleteBudget: (id: string) => Promise<void>
+  updateCategory: (id: string, data: any) => Promise<void>
+  deleteCategory: (id: string) => Promise<void>
   setGlobalAddModalOpen: (open: boolean) => void
 }
 
@@ -402,11 +408,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return
 
-    const { error } = await supabase.from('profiles').update(data).eq('id', user.id)
+    const { error } = await supabase.from('profiles').upsert({ id: user.id, ...data }).select()
 
     if (error) {
       console.error(error)
-      return
+      throw error
     }
 
     await fetchData()
@@ -430,6 +436,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await fetchData()
   }, [supabase, fetchData])
 
+  const deleteWallet = useCallback(async (id: string) => {
+    const { error } = await supabase.from('wallets').delete().eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
+  const updateWallet = useCallback(async (id: string, data: any) => {
+    const { error } = await supabase.from('wallets').update(data).eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
+  const deleteBudget = useCallback(async (id: string) => {
+    const { error } = await supabase.from('budgets').delete().eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
+  const updateBudget = useCallback(async (id: string, data: any) => {
+    const { error } = await supabase.from('budgets').update(data).eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
+  const deleteCategory = useCallback(async (id: string) => {
+    const { error } = await supabase.from('categories').delete().eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
+  const updateCategory = useCallback(async (id: string, data: any) => {
+    const { error } = await supabase.from('categories').update(data).eq('id', id)
+    if (error) console.error(error)
+    else await fetchData()
+  }, [supabase, fetchData])
+
   return (
     <AppContext.Provider value={{
       profile,
@@ -451,6 +493,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       updateProfile,
       deleteTransaction,
       updateTransaction,
+      updateWallet,
+      deleteWallet,
+      updateBudget,
+      deleteBudget,
+      updateCategory,
+      deleteCategory,
       setGlobalAddModalOpen,
     }}>
       {children}

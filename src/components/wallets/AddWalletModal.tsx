@@ -1,19 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X, Wallet as WalletIcon, CreditCard, Building2, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface AddWalletModalProps {
   isOpen: boolean
   onClose: () => void
+  initialData?: any
   onSave: (data: {
     name: string
     type: string
     balance: number
     icon: string
     color: string
-  }) => void
+  }, id?: string) => void
 }
 
 const WALLET_TYPES = [
@@ -24,11 +25,25 @@ const WALLET_TYPES = [
 
 const ICONS = ['💰', '💳', '🏦', '📱', '💵', '🏠', '🚗']
 
-export default function AddWalletModal({ isOpen, onClose, onSave }: AddWalletModalProps) {
+export default function AddWalletModal({ isOpen, onClose, initialData, onSave }: AddWalletModalProps) {
   const [name, setName] = useState('')
   const [type, setType] = useState('cash')
   const [balance, setBalance] = useState('')
   const [selectedIcon, setSelectedIcon] = useState('💰')
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setName(initialData.name)
+      setType(initialData.type)
+      setBalance(initialData.balance?.toString())
+      setSelectedIcon(initialData.icon)
+    } else if (isOpen) {
+      setName('')
+      setType('cash')
+      setBalance('')
+      setSelectedIcon('💰')
+    }
+  }, [isOpen, initialData])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,7 +54,7 @@ export default function AddWalletModal({ isOpen, onClose, onSave }: AddWalletMod
       balance: parseFloat(balance) || 0,
       icon: selectedIcon,
       color: walletType?.color || '#10B981',
-    })
+    }, initialData?.id)
     // Reset and close
     setName('')
     setBalance('')
@@ -60,7 +75,7 @@ export default function AddWalletModal({ isOpen, onClose, onSave }: AddWalletMod
           onClick={e => e.stopPropagation()}
         >
           <div className="modal-header">
-            <h2 className="modal-title">Nouveau Portefeuille</h2>
+            <h2 className="modal-title">{initialData ? 'Modifier le portefeuille' : 'Nouveau Portefeuille'}</h2>
             <button className="btn btn-icon btn-ghost" onClick={onClose}>
               <X size={20} />
             </button>

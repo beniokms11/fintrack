@@ -4,13 +4,14 @@ import { useState } from 'react'
 import BottomNav from '@/components/navigation/BottomNav'
 import { useApp } from '@/components/providers/AppProvider'
 import { formatXOF } from '@/lib/utils'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import AddWalletModal from '@/components/wallets/AddWalletModal'
 
 export default function WalletsPage() {
-  const { wallets, addWallet } = useApp()
+  const { wallets, addWallet, updateWallet, deleteWallet } = useApp()
   const [showModal, setShowModal] = useState(false)
+  const [editingWallet, setEditingWallet] = useState<any>(null)
   const total = wallets.reduce((sum, w) => sum + Number(w.balance), 0)
 
   return (
@@ -24,7 +25,7 @@ export default function WalletsPage() {
           <button 
             className="btn btn-sm btn-primary" 
             id="btn-new-wallet"
-            onClick={() => setShowModal(true)}
+            onClick={() => { setEditingWallet(null); setShowModal(true); }}
           >
             <Plus size={16} /> Ajouter
           </button>
@@ -41,7 +42,7 @@ export default function WalletsPage() {
             
             <button 
               className="btn btn-primary whc-add-btn" 
-              onClick={() => setShowModal(true)}
+              onClick={() => { setEditingWallet(null); setShowModal(true); }}
               id="btn-new-wallet-hero"
             >
               <Plus size={18} /> Add New Wallet
@@ -58,6 +59,16 @@ export default function WalletsPage() {
                   <div className="wic-info">
                     <span className="wic-name">{wallet.name}</span>
                     <span className="wic-type">{wallet.type.replace('_', ' ')}</span>
+                  </div>
+                  <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setEditingWallet(wallet); setShowModal(true); }}
+                      className="btn-icon btn-ghost" style={{ padding: '4px', color: 'var(--color-text-tertiary)' }}
+                    ><Pencil size={16} /></button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); if(window.confirm('Supprimer ce compte ?')) deleteWallet(wallet.id) }}
+                      className="btn-icon btn-ghost" style={{ padding: '4px', color: 'var(--color-expense)' }}
+                    ><Trash2 size={16} /></button>
                   </div>
                 </div>
                 <div className="wic-body">
@@ -196,7 +207,11 @@ export default function WalletsPage() {
       <AddWalletModal 
         isOpen={showModal} 
         onClose={() => setShowModal(false)} 
-        onSave={addWallet} 
+        initialData={editingWallet}
+        onSave={(data, id) => {
+          if (id) updateWallet(id, data)
+          else addWallet(data)
+        }} 
       />
     </>
   )

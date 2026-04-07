@@ -6,12 +6,13 @@ import BottomNav from '@/components/navigation/BottomNav'
 import AddTransactionModal from '@/components/transactions/AddTransactionModal'
 import AddBudgetModal from '@/components/budgets/AddBudgetModal'
 import { useState } from 'react'
-import { Plus, TrendingDown } from 'lucide-react'
+import { Plus, TrendingDown, Pencil, Trash2 } from 'lucide-react'
 
 export default function BudgetsPage() {
-  const { budgets, addTransaction, addBudget, loading } = useApp()
+  const { budgets, addTransaction, addBudget, updateBudget, deleteBudget, loading } = useApp()
   const [showAddModal, setShowAddModal] = useState(false)
   const [showBudgetModal, setShowBudgetModal] = useState(false)
+  const [editingBudget, setEditingBudget] = useState<any>(null)
 
   if (loading) {
     return (
@@ -33,7 +34,7 @@ export default function BudgetsPage() {
       <div className="page">
         <header className="page-header">
           <h1 className="page-title">Budgets</h1>
-          <button className="btn btn-sm btn-primary" id="btn-new-budget" onClick={() => setShowBudgetModal(true)}>
+          <button className="btn btn-sm btn-primary" id="btn-new-budget" onClick={() => { setEditingBudget(null); setShowBudgetModal(true); }}>
             <Plus size={16} /> Nouveau
           </button>
         </header>
@@ -73,6 +74,16 @@ export default function BudgetsPage() {
                     <span className="bc-icon" style={{ color: strokeColor, background: `${strokeColor}15` }}>
                       {budget.category?.icon || '📌'}
                     </span>
+                    <div style={{ marginLeft: 'auto', display: 'flex', gap: '4px' }}>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); setEditingBudget(budget); setShowBudgetModal(true); }}
+                        className="btn-icon btn-ghost" style={{ padding: '4px', color: 'var(--color-text-tertiary)' }}
+                      ><Pencil size={14} /></button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); if(window.confirm('Supprimer ce budget ?')) deleteBudget(budget.id) }}
+                        className="btn-icon btn-ghost" style={{ padding: '4px', color: 'var(--color-expense)' }}
+                      ><Trash2 size={14} /></button>
+                    </div>
                   </div>
                   
                   <div className="bc-chart">
@@ -179,7 +190,7 @@ export default function BudgetsPage() {
           .bc-top {
             width: 100%;
             display: flex;
-            justify-content: flex-start;
+            align-items: flex-start;
           }
           .bc-icon {
             width: 32px;
@@ -239,7 +250,11 @@ export default function BudgetsPage() {
       <AddBudgetModal
         isOpen={showBudgetModal}
         onClose={() => setShowBudgetModal(false)}
-        onSave={addBudget}
+        initialData={editingBudget}
+        onSave={(data, id) => {
+          if (id) updateBudget(id, data)
+          else addBudget(data)
+        }}
       />
     </>
   )

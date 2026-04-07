@@ -37,9 +37,9 @@ export default function ProfilePage() {
     try {
       await updateProfile({ full_name: fullName })
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' })
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      setMessage({ type: 'error', text: 'Erreur lors de la mise à jour.' })
+      setMessage({ type: 'error', text: `Erreur: ${err.message || 'Impossible de mettre à jour'}` })
     } finally {
       setSaving(false)
     }
