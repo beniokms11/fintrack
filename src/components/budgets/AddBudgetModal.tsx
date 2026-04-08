@@ -32,7 +32,8 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
         period: initialData?.period || 'monthly'
       })
     }
-  }, [isOpen, initialData, expenseCategories])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialData])
   
   const [showCategories, setShowCategories] = useState(false)
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false)

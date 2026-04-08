@@ -167,10 +167,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     // Calculate 30-day stats
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+    // Convert to local YYYY-MM-DD for accurate comparison regardless of timezone
+    const offset = thirtyDaysAgo.getTimezoneOffset()
+    const thirtyDate = new Date(thirtyDaysAgo.getTime() - (offset * 60 * 1000))
+    const thirtyDaysAgoStr = thirtyDate.toISOString().split('T')[0]
 
     txData.forEach((tx: any) => {
-      const txDate = new Date(tx.date)
-      if (txDate >= thirtyDaysAgo) {
+      // tx.date is already YYYY-MM-DD, string comparison is safe and avoids TZ shifts
+      if (tx.date >= thirtyDaysAgoStr) {
         if (tx.type === 'income') income += Number(tx.amount)
         if (tx.type === 'expense') expense += Number(tx.amount)
       }

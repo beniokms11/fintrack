@@ -30,7 +30,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
     amount: '',
     category_id: '',
     wallet_id: appWallets[0]?.id || '',
-    date: new Date().toISOString().slice(0, 10),
+    date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
     description: '',
     merchant: '',
   })
@@ -47,7 +47,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
         amount: initialData.amount ? String(initialData.amount) : '',
         category_id: initialData.category_id || '',
         wallet_id: initialData.wallet_id || appWallets[0]?.id || '',
-        date: initialData.date || new Date().toISOString().slice(0, 10),
+        date: initialData.date || new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
         description: initialData.description || '',
         merchant: initialData.merchant || '',
       })
@@ -57,7 +57,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
         amount: '',
         category_id: '',
         wallet_id: appWallets[0]?.id || '',
-        date: new Date().toISOString().slice(0, 10),
+        date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
         description: '',
         merchant: '',
       })
@@ -99,7 +99,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
           amount: '',
           category_id: '',
           wallet_id: appWallets[0]?.id || '',
-          date: new Date().toISOString().slice(0, 10),
+          date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
           description: '',
           merchant: '',
         })
@@ -114,7 +114,7 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
       amount: '',
       category_id: '',
       wallet_id: appWallets[0]?.id || '',
-      date: new Date().toISOString().slice(0, 10),
+      date: new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10),
       description: '',
       merchant: '',
     })

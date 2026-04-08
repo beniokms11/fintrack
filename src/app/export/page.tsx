@@ -25,7 +25,7 @@ export default function ExportPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `fintrack_export_${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `fintrack_export_${new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }

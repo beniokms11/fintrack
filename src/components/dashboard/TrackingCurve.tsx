@@ -51,10 +51,12 @@ export default function TrackingCurve() {
       if (unit === 'day') {
         d.setDate(d.getDate() - i)
       } else {
-        d.setMonth(d.getMonth() - i)
+        d.setDate(1) // Avoid end of month overflow
+        d.setMonth(now.getMonth() - i)
       }
       
-      const dateStr = d.toISOString().split('T')[0]
+      const dLocal = new Date(d.getTime() - (d.getTimezoneOffset() * 60000))
+      const dateStr = dLocal.toISOString().split('T')[0]
       let label = ''
       
       if (period === '7d') {
@@ -69,13 +71,13 @@ export default function TrackingCurve() {
     }
 
     transactions.forEach(tx => {
-      const txDate = new Date(tx.date)
+      const [txYear, txMonth] = tx.date.split('-').map(Number)
       
       const point = points.find(p => {
         if (unit === 'day') {
           return tx.date === p.dateStr
         } else {
-          return txDate.getMonth() === p.date.getMonth() && txDate.getFullYear() === p.date.getFullYear()
+          return (txMonth - 1) === p.date.getMonth() && txYear === p.date.getFullYear()
         }
       })
 
