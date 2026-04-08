@@ -21,7 +21,7 @@ export default function ProfilePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         setUser(user)
-        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
+        const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).maybeSingle()
         if (profile) setFullName(profile.full_name || '')
       }
       setLoading(false)

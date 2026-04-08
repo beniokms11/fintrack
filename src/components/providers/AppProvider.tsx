@@ -111,7 +111,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       supabase.from('transactions').select('*, category:categories(*), wallet:wallets(*)').order('date', { ascending: false }),
       supabase.from('budgets').select('*, category:categories(*)'),
       supabase.from('savings_goals').select('*'),
-      supabase.from('profiles').select('*').single(),
+      supabase.from('profiles').select('*').maybeSingle(),
     ])
 
     // Initial setup if empty
@@ -277,6 +277,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     if (txError) {
       console.error(txError)
+      window.alert("Erreur Supabase (Transaction): " + txError.message)
       return
     }
 
@@ -310,6 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error(error)
+      window.alert("Erreur Supabase (Budget): " + error.message)
       return
     }
 
@@ -431,6 +433,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from('transactions').update(data).eq('id', id)
     if (error) {
       console.error(error)
+      window.alert("Erreur Supabase (Update Tx): " + error.message)
       return
     }
     await fetchData()
