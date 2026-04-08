@@ -71,7 +71,7 @@ INFOS UTILISATEUR (A ne mentionner que si pertinent) :
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: finalSystemPrompt },
           ...messages.slice(-20), // Keep last 20 messages for context
@@ -85,6 +85,14 @@ INFOS UTILISATEUR (A ne mentionner que si pertinent) :
     if (!response.ok) {
       const errorData = await response.text()
       console.error('Groq API error:', response.status, errorData)
+      
+      if (response.status === 429) {
+        return NextResponse.json(
+          { error: 'L\'assistant est très sollicité en ce moment. Réessaie dans quelques minutes.' },
+          { status: 429 }
+        )
+      }
+
       return NextResponse.json(
         { error: 'Erreur du service IA. Réessaie dans un moment.' },
         { status: response.status }

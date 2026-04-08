@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { X, ChevronDown, Calendar, Plus, Check } from 'lucide-react'
-import { TransactionType } from '@/lib/types'
+import { TransactionType, Transaction } from '@/lib/types'
 import { useApp } from '../providers/AppProvider'
 import AddCategoryModal from '../categories/AddCategoryModal'
 
@@ -10,7 +10,7 @@ interface AddTransactionModalProps {
   isOpen: boolean
   onClose: () => void
   onSave?: (data: TransactionFormState, id?: string) => void
-  initialData?: any
+  initialData?: Transaction | null
 }
 
 interface TransactionFormState {

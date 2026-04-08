@@ -9,10 +9,18 @@ import Link from 'next/link'
 import AddWalletModal from '@/components/wallets/AddWalletModal'
 
 export default function WalletsPage() {
-  const { wallets, addWallet, updateWallet, deleteWallet } = useApp()
+  const { wallets, stats, addWallet, updateWallet, deleteWallet, loading } = useApp()
   const [showModal, setShowModal] = useState(false)
   const [editingWallet, setEditingWallet] = useState<any>(null)
-  const total = wallets.reduce((sum, w) => sum + Number(w.balance), 0)
+  const total = stats.totalBalance
+
+  if (loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg)' }}>
+        <p style={{ color: 'var(--color-text-secondary)', fontWeight: 500 }}>Chargement de tes portefeuilles...</p>
+      </div>
+    )
+  }
 
   return (
     <>

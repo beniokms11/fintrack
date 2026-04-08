@@ -31,11 +31,18 @@ export default function ProfilePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
+    const trimmedName = fullName.trim()
+    
+    if (trimmedName.length < 2) {
+      setMessage({ type: 'error', text: 'Ton nom doit contenir au moins 2 caractères.' })
+      return
+    }
+
     setSaving(true)
     setMessage(null)
     
     try {
-      await updateProfile({ full_name: fullName })
+      await updateProfile({ full_name: trimmedName })
       setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' })
     } catch (err: any) {
       console.error(err)

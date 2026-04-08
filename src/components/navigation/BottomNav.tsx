@@ -34,7 +34,7 @@ export default function BottomNav({ onAddClick }: BottomNavProps) {
 
   return (
     <>
-      <nav className="nav-bottom" id="bottom-nav">
+      <nav className="nav-bottom" id="bottom-nav" style={{ zIndex: 90 }}>
       {navItems.map(item => {
         if (item.key === 'add') {
           return (

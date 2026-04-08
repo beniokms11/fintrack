@@ -46,8 +46,8 @@ export default function StatsPage() {
             <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: '4px', display: 'block' }}>
               Bénéfice net ce mois
             </span>
-            <span className="tabular-nums amount-income" style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 700 }}>
-              +{formatXOF(stats.totalIncome - stats.totalExpenses)}
+            <span className={`tabular-nums ${stats.totalIncome - stats.totalExpenses >= 0 ? 'amount-income' : 'amount-expense'}`} style={{ fontSize: 'var(--font-size-2xl)', fontWeight: 700 }}>
+              {formatXOF(stats.totalIncome - stats.totalExpenses, { showSign: true })}
             </span>
           </div>
 

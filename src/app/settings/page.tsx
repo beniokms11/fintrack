@@ -21,11 +21,26 @@ export default function SettingsPage() {
     })
   }, [])
 
-  const initials = profile?.full_name 
-    ? profile.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-    : 'FT'
+  const initials = profile?.full_name
+    ? profile.full_name
+        .trim()
+        .split(/\s+/)
+        .map((n: string) => n[0])
+        .filter(Boolean)
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : email ? email[0].toUpperCase() : 'FT'
 
-  const sections = [
+  interface SettingsItem {
+    icon: any
+    label: string
+    subtitle: string
+    href?: string
+    action?: string
+  }
+
+  const sections: { title: string; items: SettingsItem[] }[] = [
     {
       title: 'Compte',
       items: [
@@ -86,7 +101,8 @@ export default function SettingsPage() {
                 {section.title}
               </h3>
               <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                {section.items.map((item: any, i) => {
+                {section.items.map((item, i) => {
+                  const Icon = item.icon
                   const content = (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-md)' }}>
                       <div style={{
@@ -95,7 +111,7 @@ export default function SettingsPage() {
                         alignItems: 'center', justifyContent: 'center',
                         color: 'var(--color-text-secondary)',
                       }}>
-                        <item.icon size={18} />
+                        <Icon size={18} />
                       </div>
                       <div>
                         <span style={{ display: 'block', fontWeight: 500 }}>{item.label}</span>
@@ -164,7 +180,7 @@ export default function SettingsPage() {
                         padding: 'var(--space-lg)', cursor: 'pointer',
                         borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
                       }}
-                    >
+                    >EFBDQ
                       {content}
                       <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
                     </div>

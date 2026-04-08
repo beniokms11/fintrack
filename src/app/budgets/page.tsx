@@ -52,7 +52,12 @@ export default function BudgetsPage() {
                 }} />
               </div>
               <span className="bhc-left-text">
-                {totalBudget - totalSpent > 0 ? `${formatXOF(totalBudget - totalSpent)} left` : 'Limit reached'}
+                {totalBudget > 0 
+                  ? (totalBudget - totalSpent > 0 
+                      ? `${formatXOF(totalBudget - totalSpent)} restant` 
+                      : (totalBudget - totalSpent === 0 ? 'Limite atteinte' : `Dépassement de ${formatXOF(Math.abs(totalBudget - totalSpent))}`))
+                  : 'Aucun budget défini'
+                }
               </span>
             </div>
           </div>
