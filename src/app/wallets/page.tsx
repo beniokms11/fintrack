@@ -41,11 +41,11 @@ export default function WalletsPage() {
 
         <div className="page-content">
           <div className="wallet-hero-card" id="wallets-total">
-            <span className="whc-label">TOTAL NET WORTH</span>
+            <span className="whc-label">PATRIMOINE NET TOTAL</span>
             <span className="whc-balance tabular-nums">{formatXOF(total)}</span>
             <div className="whc-change positive">
               <ArrowLeft size={12} className="rotate-up" />
-              +4.2% <span style={{ opacity: 0.7, fontWeight: 500, marginLeft: 4 }}>vs last month</span>
+              +4.2% <span style={{ opacity: 0.7, fontWeight: 500, marginLeft: 4 }}>vs mois dernier</span>
             </div>
             
             <button 
@@ -80,7 +80,7 @@ export default function WalletsPage() {
                   </div>
                 </div>
                 <div className="wic-body">
-                  <span className="wic-label">Available Balance</span>
+                  <span className="wic-label">Solde disponible</span>
                   <span className="wic-amount tabular-nums">{formatXOF(wallet.balance)}</span>
                 </div>
               </div>
