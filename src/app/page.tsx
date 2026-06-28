@@ -52,9 +52,11 @@ export default function DashboardPage() {
   }
 
   // Get user initials for avatar
-  const initials = profile?.full_name
-    ? profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-    : '👤'
+  const rawName = profile?.full_name?.trim() || 'Utilisateur'
+  const displayName = rawName.split(' ')[0]
+  const initials = rawName !== 'Utilisateur'
+    ? rawName.split(' ').map(n => n[0]).filter(Boolean).join('').toUpperCase().slice(0, 2)
+    : 'UF'
 
   return (
     <>
@@ -68,7 +70,7 @@ export default function DashboardPage() {
             <div className="dashboard-header-info">
               <span className="dashboard-logo-text font-headline">FinTrack</span>
               <span className="dashboard-greeting" suppressHydrationWarning>
-                {getGreeting()}{profile?.full_name ? `, ${profile.full_name.split(' ')[0]}` : ''} 👋
+                {getGreeting()}, {displayName} 👋
               </span>
             </div>
           </div>

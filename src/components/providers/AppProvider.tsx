@@ -486,8 +486,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setWallets(wData)
       setCategories(cData)
       setTransactions(txData)
-      setSavingsGoals(fetchedSavings || [])
-      setProfile(fetchedProfile || null)
+      let effectiveProfile = fetchedProfile
+      if (!effectiveProfile || !effectiveProfile.full_name) {
+        const fallbackName = user.user_metadata?.full_name || user.user_metadata?.name || (user.email ? user.email.split('@')[0].replace(/[\._-]/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Utilisateur')
+        if (!effectiveProfile) {
+          effectiveProfile = {
+            id: user.id,
+            full_name: fallbackName,
+            currency: 'XOF',
+            theme: 'light'
+          }
+          await supabase.from('profiles').upsert(effectiveProfile)
+        } else {
+          effectiveProfile.full_name = fallbackName
+          await supabase.from('profiles').update({ full_name: fallbackName }).eq('id', user.id)
+        }
+      }
+      setProfile(effectiveProfile)
       setTontines(tonData)
       setRecurringTransactions(recData)
 
