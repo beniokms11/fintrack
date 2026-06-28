@@ -7,12 +7,12 @@
 
 /* --- CSS Custom Properties --- */
 :root {
-  /* Brand / Primary (Apple Green) */
-  --color-accent: #34C759;
-  --color-accent-hover: #28A745;
-  --color-accent-light: rgba(52, 199, 89, 0.12);
-  --color-accent-subtle: rgba(52, 199, 89, 0.08);
-  --color-accent-glow: rgba(52, 199, 89, 0.15);
+  /* Brand / Primary (Premium Indigo Blue) */
+  --color-accent: #6366F1;
+  --color-accent-hover: #4F46E5;
+  --color-accent-light: rgba(99, 102, 241, 0.12);
+  --color-accent-subtle: rgba(99, 102, 241, 0.08);
+  --color-accent-glow: rgba(99, 102, 241, 0.25);
 
   /* Semantic (iOS System Colors) */
   --color-income: #34C759;
@@ -114,10 +114,10 @@
   --color-shadow: rgba(0, 0, 0, 0.35);
   --color-shadow-lg: rgba(0, 0, 0, 0.55);
   --color-overlay: rgba(11, 15, 25, 0.75);
-  --color-accent: #30D158;
-  --color-accent-hover: #34C759;
-  --color-accent-light: rgba(48, 209, 88, 0.15);
-  --color-accent-glow: rgba(48, 209, 88, 0.15);
+  --color-accent: #818CF8;
+  --color-accent-hover: #6366F1;
+  --color-accent-light: rgba(129, 140, 248, 0.15);
+  --color-accent-glow: rgba(129, 140, 248, 0.35);
   --color-expense-light: rgba(255, 69, 58, 0.15);
   --color-warning-light: rgba(255, 159, 10, 0.15);
   --color-info-light: rgba(10, 132, 255, 0.15);
@@ -401,7 +401,7 @@ body {
 }
 
 [data-theme="dark"] .nav-item.active {
-  background: rgba(16, 185, 129, 0.12);
+  background: var(--color-accent-light);
 }
 
 .nav-item:hover {
