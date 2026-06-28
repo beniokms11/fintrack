@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 
 export async function login(formData: FormData) {
   const supabase = await createClient()
@@ -76,7 +76,10 @@ export async function forgotPassword(formData: FormData) {
     return { error: 'Veuillez renseigner votre adresse e-mail' }
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  const headersList = await headers()
+  const host = headersList.get('host') || 'localhost:3000'
+  const protocol = host.includes('localhost') ? 'http' : 'https'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `${protocol}://${host}`
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${siteUrl}/auth/callback?next=/update-password`,
   })

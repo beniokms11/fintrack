@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { login, signup, setOfflineMode } from './actions'
 import { Mail, Lock, Loader2 } from 'lucide-react'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
+
 
 export default function LoginPage() {
   const router = useRouter()
@@ -12,6 +14,22 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash.includes('type=recovery')) {
+      router.push('/update-password' + window.location.hash)
+      return
+    }
+
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        router.push('/update-password')
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [router])
 
   const handleOfflineMode = async () => {
     setLoading(true)

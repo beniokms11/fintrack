@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updatePassword } from '../login/actions'
 import { Lock, Loader2, CheckCircle2 } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+
 
 export default function UpdatePasswordPage() {
   const router = useRouter()
@@ -27,10 +29,22 @@ export default function UpdatePasswordPage() {
     }
     
     try {
-      const res = await updatePassword(formData)
-      if (res?.error) {
-        setError(res.error)
-      } else if (res?.success) {
+      const supabase = createClient()
+      const { error: clientError } = await supabase.auth.updateUser({
+        password: pass
+      })
+      
+      if (clientError) {
+        const res = await updatePassword(formData)
+        if (res?.error) {
+          setError(res.error || clientError.message)
+        } else if (res?.success) {
+          setSuccess(true)
+          setTimeout(() => {
+            router.push('/')
+          }, 2500)
+        }
+      } else {
         setSuccess(true)
         setTimeout(() => {
           router.push('/')
