@@ -228,7 +228,7 @@ export default function TrackingCurve() {
       <style jsx>{`
         .tracking-curve-card {
            background: var(--color-surface);
-           border: none;
+           border: 1px solid var(--color-border);
            border-radius: var(--radius-xl);
            padding: var(--space-xl) var(--space-lg);
            min-height: 380px;

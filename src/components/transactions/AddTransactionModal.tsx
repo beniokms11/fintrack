@@ -24,7 +24,9 @@ interface TransactionFormState {
 }
 
 export default function AddTransactionModal({ isOpen, onClose, onSave, initialData }: AddTransactionModalProps) {
-  const { categories: appCategories, wallets: appWallets } = useApp()
+  const { categories: appCategories, wallets: appWallets, addRecurringTransaction } = useApp()
+  const [isRecurring, setIsRecurring] = useState(false)
+  const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly')
   const [form, setForm] = useState<TransactionFormState>({
     type: 'expense',
     amount: '',
@@ -81,6 +83,19 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
 
     // Simulate saving (will connect to Supabase later)
     await new Promise(resolve => setTimeout(resolve, 500))
+
+    if (isRecurring) {
+      await addRecurringTransaction({
+        wallet_id: form.wallet_id,
+        category_id: form.category_id,
+        type: form.type,
+        amount: parseFloat(form.amount),
+        description: form.description,
+        merchant: form.merchant,
+        frequency: frequency,
+        start_date: form.date
+      })
+    }
 
     setSaving(false)
     setSaved(true)
@@ -294,6 +309,38 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
               id="input-merchant"
             />
           </div>
+
+          {/* Recurring Option */}
+          {!initialData && (
+            <div className="atm-field recurring-section">
+              <label className="recurring-toggle-label">
+                <input
+                  type="checkbox"
+                  className="recurring-checkbox"
+                  checked={isRecurring}
+                  onChange={(e) => setIsRecurring(e.target.checked)}
+                  id="checkbox-recurring"
+                />
+                <span className="recurring-toggle-text">Activer la récurrence automatique</span>
+              </label>
+              {isRecurring && (
+                <div className="recurring-options animate-slide-up" style={{ marginTop: 'var(--space-sm)' }}>
+                  <label className="atm-label">Fréquence de répétition</label>
+                  <select
+                    className="input select-input"
+                    value={frequency}
+                    onChange={(e: any) => setFrequency(e.target.value)}
+                    id="select-frequency"
+                  >
+                    <option value="daily">Chaque jour</option>
+                    <option value="weekly">Chaque semaine</option>
+                    <option value="monthly">Chaque mois</option>
+                    <option value="yearly">Chaque année</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Actions */}
@@ -536,10 +583,21 @@ export default function AddTransactionModal({ isOpen, onClose, onSave, initialDa
             padding: var(--space-lg) !important;
           }
           .atm-save-btn.saved {
-            background: var(--color-accent) !important;
+            color: var(--color-text-primary);
           }
-          .atm-save-another {
-            width: 100%;
+          .recurring-checkbox {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--color-accent);
+            cursor: pointer;
+          }
+          .select-input {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 14px;
+            padding-right: 40px !important;
           }
         `}</style>
       </div>

@@ -180,7 +180,7 @@ export default function SettingsPage() {
                         padding: 'var(--space-lg)', cursor: 'pointer',
                         borderBottom: i < section.items.length - 1 ? '1px solid var(--color-border-light)' : 'none',
                       }}
-                    >EFBDQ
+                    >
                       {content}
                       <ChevronRight size={16} style={{ color: 'var(--color-text-tertiary)' }} />
                     </div>

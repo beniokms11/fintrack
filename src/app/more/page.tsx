@@ -15,12 +15,14 @@ import {
   Moon,
   Sun,
   PiggyBank,
+  Coins,
+  Clock,
 } from 'lucide-react'
 import { useTheme } from '@/components/providers/ThemeProvider'
 
 export default function MorePage() {
   const { theme, toggleTheme } = useTheme()
-  const { wallets, savingsGoals } = useApp()
+  const { wallets, savingsGoals, tontines, recurringTransactions } = useApp()
 
   const menuSections = [
     {
@@ -28,6 +30,8 @@ export default function MorePage() {
       items: [
         { icon: Wallet, label: 'Portefeuilles', href: '/wallets', badge: `${wallets.length}` },
         { icon: Target, label: "Objectifs d'épargne", href: '/savings', badge: `${savingsGoals.length}` },
+        { icon: Coins, label: 'Tontines', href: '/tontines', badge: tontines.length > 0 ? `${tontines.length}` : undefined },
+        { icon: Clock, label: 'Transactions récurrentes', href: '/transactions/recurring', badge: recurringTransactions.length > 0 ? `${recurringTransactions.length}` : undefined },
         { icon: BarChart3, label: 'Statistiques', href: '/stats' },
       ],
     },

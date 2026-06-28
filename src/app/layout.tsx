@@ -53,6 +53,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <div className="bg-mesh" />
         <ThemeProvider>
           <AppProvider>
             {children}

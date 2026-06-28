@@ -23,7 +23,7 @@ export default function QuoteCard() {
       <style jsx>{`
         .quote-card {
           background: var(--color-surface);
-          border: none;
+          border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
           padding: var(--space-xl) var(--space-lg);
           box-shadow: var(--shadow-sm);

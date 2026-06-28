@@ -92,6 +92,39 @@ export interface SavingsGoal {
   updated_at: string
 }
 
+export interface Tontine {
+  id: string
+  user_id: string
+  name: string
+  contribution_amount: number
+  frequency: 'weekly' | 'monthly'
+  start_date: string
+  status: 'active' | 'completed'
+  created_at: string
+  members?: TontineMember[]
+}
+
+export interface TontineMember {
+  id: string
+  tontine_id: string
+  name: string
+  draw_turn: number
+  payout_date: string | null
+  is_paid_out: boolean
+  created_at: string
+  payments?: TontinePayment[]
+}
+
+export interface TontinePayment {
+  id: string
+  tontine_id: string
+  member_id: string
+  round_number: number
+  amount_paid: number
+  payment_date: string
+  created_at: string
+}
+
 export interface AIConversation {
   id: string
   user_id: string
@@ -129,6 +162,24 @@ export interface SpendingByCategory {
   total: number
   percentage: number
   count: number
+}
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  wallet_id: string
+  category_id: string
+  type: TransactionType
+  amount: number
+  description: string
+  merchant: string | null
+  frequency: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  start_date: string
+  last_generated: string | null
+  is_active: boolean
+  created_at: string
+  category?: Category
+  wallet?: Wallet
 }
 
 export interface AIInsight {

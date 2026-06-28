@@ -2,14 +2,22 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { login, signup } from './actions'
+import { login, signup, setOfflineMode } from './actions'
 import { Mail, Lock, Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const handleOfflineMode = async () => {
+    setLoading(true)
+    await setOfflineMode()
+    router.push('/')
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -33,7 +41,13 @@ export default function LoginPage() {
           setError(res.error)
           setLoading(false)
         } else if (res?.success) {
-          router.push('/')
+          if (res.emailConfirmationRequired) {
+            setSuccess("Compte créé ! Veuillez vérifier vos e-mails pour confirmer votre inscription.")
+            setIsLogin(true)
+            setLoading(false)
+          } else {
+            router.push('/')
+          }
         }
       }
     } catch (err) {
@@ -63,6 +77,12 @@ export default function LoginPage() {
           </div>
         )}
 
+        {success && (
+          <div className="login-success">
+            {success}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -80,7 +100,14 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Mot de passe</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <label htmlFor="password">Mot de passe</label>
+              {isLogin && (
+                <Link href="/forgot-password" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-accent)', textDecoration: 'none', fontWeight: 500, transition: 'opacity 0.2s' }}>
+                  Mot de passe oublié ?
+                </Link>
+              )}
+            </div>
             <div className="input-with-icon">
               <Lock size={18} className="input-icon" />
               <input 
@@ -101,6 +128,17 @@ export default function LoginPage() {
             disabled={loading}
           >
             {loading ? <Loader2 className="animate-spin" size={20} /> : (isLogin ? 'Se connecter' : "S'inscrire")}
+          </button>
+
+          <div className="login-divider">ou</div>
+
+          <button 
+            type="button" 
+            className="btn btn-secondary btn-lg offline-btn"
+            onClick={handleOfflineMode}
+            disabled={loading}
+          >
+            Continuer hors-ligne (Démo)
           </button>
         </form>
 
@@ -205,6 +243,30 @@ export default function LoginPage() {
         .login-btn {
           width: 100%;
           margin-top: var(--space-md);
+        }
+        .login-divider {
+          text-align: center;
+          margin: var(--space-sm) 0;
+          font-size: var(--font-size-xs);
+          color: var(--color-text-tertiary);
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+        .offline-btn {
+          width: 100%;
+          background: var(--color-surface-hover);
+          color: var(--color-text-primary);
+        }
+        .login-success {
+          background: var(--color-expense-light);
+          background-color: rgba(16, 185, 129, 0.1);
+          color: var(--color-accent);
+          padding: var(--space-md);
+          border-radius: var(--radius-md);
+          margin-bottom: var(--space-lg);
+          font-size: var(--font-size-sm);
+          font-weight: 500;
+          text-align: center;
         }
         .login-footer {
           margin-top: var(--space-xl);

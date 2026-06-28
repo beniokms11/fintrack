@@ -7,8 +7,8 @@ export async function updateSession(request: NextRequest) {
   })
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder',
     {
       cookies: {
         getAll() {
@@ -32,11 +32,30 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Detect if Supabase is unconfigured (using placeholder URL)
+  const isSupabasePlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                                process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
+
+  if (isSupabasePlaceholder) {
+    return supabaseResponse
+  }
+
   // Protect all non-auth routes
-  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register')
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register') || request.nextUrl.pathname.startsWith('/forgot-password')
   
   // Public routes (if any)
-  const isPublicRoute = request.nextUrl.pathname.startsWith('/api/') || request.nextUrl.pathname === '/manifest.json'
+  const isPublicRoute = request.nextUrl.pathname.startsWith('/api/') || request.nextUrl.pathname === '/manifest.json' || request.nextUrl.pathname.startsWith('/auth/callback') || request.nextUrl.pathname.startsWith('/update-password')
+
+  const isOfflineMode = request.cookies.get('fintrack_mode')?.value === 'offline'
+
+  if (isOfflineMode) {
+    if (isAuthRoute) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
+    return supabaseResponse
+  }
 
   if (!user && !isAuthRoute && !isPublicRoute) {
     const url = request.nextUrl.clone()
