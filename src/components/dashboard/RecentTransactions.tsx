@@ -15,7 +15,7 @@ export default function RecentTransactions({ transactions, onEdit }: RecentTrans
   const recent = transactions.slice(0, 5)
 
   return (
-    <div className="recent-transactions" id="card-recent-transactions">
+    <div className="recent-transactions glass-card-premium" id="card-recent-transactions">
       <div className="section-header">
         <h2 className="section-title">Transactions récentes</h2>
         <a href="/transactions" className="section-link">
@@ -70,12 +70,8 @@ export default function RecentTransactions({ transactions, onEdit }: RecentTrans
 
       <style jsx>{`
         .recent-transactions {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
           border-radius: var(--radius-xl);
           padding: var(--space-xl) var(--space-lg);
-          box-shadow: var(--shadow-md);
-          transition: all var(--transition-base);
           margin-bottom: var(--space-2xl);
         }
         .tx-list {
@@ -88,15 +84,16 @@ export default function RecentTransactions({ transactions, onEdit }: RecentTrans
           gap: var(--space-md);
           padding: var(--space-md) var(--space-sm);
           border-bottom: 1px solid var(--color-border-light);
-          transition: background var(--transition-fast);
+          border-radius: var(--radius-md);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           cursor: pointer;
         }
         .tx-item:hover {
           background: var(--color-surface-hover);
+          transform: translateX(4px);
         }
         .tx-item:last-child {
           border-bottom: none;
-          padding-bottom: var(--space-xs);
         }
         .tx-item:first-child {
           padding-top: var(--space-xs);

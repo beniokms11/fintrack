@@ -62,8 +62,9 @@
   --radius-full: 9999px;
 
   /* Typography */
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "SF Pro", "Outfit", "Inter", sans-serif;
-  --font-headline: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Plus Jakarta Sans", "Outfit", "Inter", sans-serif;
+  --font-family: "Plus Jakarta Sans", "Inter", "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-headline: "Outfit", "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+
   --font-size-xs: 0.75rem;     /* 12px */
   --font-size-sm: 0.8125rem;  /* 13px */
   --font-size-base: 0.9375rem; /* 15px */
@@ -93,26 +94,26 @@
   --header-height: 64px;
 }
 
-/* --- Dark Mode (Apple Pure Black OLED) --- */
+/* --- Dark Mode (Premium Obsidian Blue #0B0F19 & Glassmorphism) --- */
 [data-theme="dark"] {
-  --color-bg: #000000;
-  --color-bg-alt: #1C1C1E;
-  --color-surface: #1C1C1E;
-  --color-surface-hover: #2C2C2E;
-  --color-surface-elevated: #2C2C2E;
-  --color-surface-container: #2C2C2E;
-  --color-surface-container-low: #1C1C1E;
-  --color-surface-container-high: #3A3A3C;
-  --color-surface-container-highest: #48484A;
-  --color-border: rgba(255, 255, 255, 0.09);
-  --color-border-light: rgba(255, 255, 255, 0.05);
-  --color-text-primary: #FFFFFF;
-  --color-text-secondary: #8E8E93;
-  --color-text-tertiary: #636366;
-  --color-text-inverse: #000000;
-  --color-shadow: rgba(0, 0, 0, 0.3);
-  --color-shadow-lg: rgba(0, 0, 0, 0.5);
-  --color-overlay: rgba(0, 0, 0, 0.6);
+  --color-bg: #0B0F19;
+  --color-bg-alt: #0F172A;
+  --color-surface: rgba(30, 41, 59, 0.65);
+  --color-surface-hover: rgba(51, 65, 85, 0.75);
+  --color-surface-elevated: rgba(30, 41, 59, 0.85);
+  --color-surface-container: rgba(15, 23, 42, 0.8);
+  --color-surface-container-low: #0B0F19;
+  --color-surface-container-high: rgba(51, 65, 85, 0.85);
+  --color-surface-container-highest: rgba(71, 85, 105, 0.9);
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-light: rgba(255, 255, 255, 0.04);
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #94A3B8;
+  --color-text-tertiary: #64748B;
+  --color-text-inverse: #0B0F19;
+  --color-shadow: rgba(0, 0, 0, 0.35);
+  --color-shadow-lg: rgba(0, 0, 0, 0.55);
+  --color-overlay: rgba(11, 15, 25, 0.75);
   --color-accent: #30D158;
   --color-accent-hover: #34C759;
   --color-accent-light: rgba(48, 209, 88, 0.15);
@@ -351,24 +352,25 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.8);
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.75);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
   padding: var(--space-sm) var(--space-md);
   padding-bottom: max(var(--space-sm), var(--safe-area-bottom));
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 100;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 [data-theme="dark"] .nav-bottom {
-  background: rgba(21, 24, 33, 0.85);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.1);
 }
 
 .nav-item {
@@ -408,24 +410,24 @@ body {
 
 /* FAB (Floating Action Button for Add) */
 .nav-fab {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, #6366F1 0%, #4F46E5 50%, #3B82F6 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-  transition: all var(--transition-spring);
-  margin-top: -24px;
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.45);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-top: -28px;
 }
 
 .nav-fab:hover {
-  transform: scale(1.08);
-  box-shadow: 0 8px 28px rgba(16, 185, 129, 0.45);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 12px 35px rgba(99, 102, 241, 0.65);
 }
 
 .nav-fab:active {
@@ -698,3 +700,28 @@ body {
     color: black;
   }
 }
+
+/* =========================================
+   FinTrack V3.5 Premium Glassmorphism & UI
+   ========================================= */
+.glass-card-premium {
+  background: var(--color-surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-premium:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.3), 0 0 25px var(--color-accent-glow);
+  transform: translateY(-3px);
+}
+
+.text-gradient-premium {
+  background: linear-gradient(135deg, #FFFFFF 0%, #A5B4FC 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+

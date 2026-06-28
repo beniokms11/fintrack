@@ -10,7 +10,7 @@ interface StatsCardsProps {
 
 export default function StatsCards({ stats }: StatsCardsProps) {
   return (
-    <div className="stats-hero-card" id="card-hero-balance">
+    <div className="stats-hero-card glass-card-premium" id="card-hero-balance">
       <div className="shc-header">
         <span className="shc-title">Total Balance</span>
         <div className="shc-logo-wrap">
@@ -56,16 +56,25 @@ export default function StatsCards({ stats }: StatsCardsProps) {
 
       <style jsx>{`
         .stats-hero-card {
-          background: var(--color-surface);
           border-radius: var(--radius-xl);
           padding: var(--space-xl);
-          box-shadow: var(--shadow-xl);
           display: flex;
           flex-direction: column;
           margin-top: var(--space-md);
           margin-bottom: var(--space-2xl);
           position: relative;
           z-index: 10;
+          overflow: hidden;
+        }
+        .stats-hero-card::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.12) 0%, transparent 60%);
+          pointer-events: none;
         }
         .shc-header {
           display: flex;

@@ -13,7 +13,7 @@ export default function QuoteCard() {
   }, [])
 
   return (
-    <div className="quote-card" id="card-quote">
+    <div className="quote-card glass-card-premium" id="card-quote">
       <div className="quote-icon">
         <Sparkles size={16} />
       </div>
@@ -22,17 +22,10 @@ export default function QuoteCard() {
 
       <style jsx>{`
         .quote-card {
-          background: var(--color-surface);
-          border: 1px solid var(--color-border);
           border-radius: var(--radius-lg);
           padding: var(--space-xl) var(--space-lg);
-          box-shadow: var(--shadow-sm);
           position: relative;
           overflow: hidden;
-          transition: all var(--transition-base);
-        }
-        .quote-card:hover {
-          box-shadow: var(--shadow-md);
         }
         .quote-card::before {
           content: '';
