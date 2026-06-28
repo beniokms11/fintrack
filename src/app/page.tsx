@@ -12,6 +12,7 @@ import BudgetProgress from '@/components/dashboard/BudgetProgress'
 import TopCategories from '@/components/dashboard/TopCategories'
 import AIInsightCard from '@/components/dashboard/AIInsightCard'
 import TrackingCurve from '@/components/dashboard/TrackingCurve'
+import MonthSelector from '@/components/dashboard/MonthSelector'
 import AddTransactionModal from '@/components/transactions/AddTransactionModal'
 import { Bell, Sun, Moon, Plus } from 'lucide-react'
 
@@ -91,6 +92,7 @@ export default function DashboardPage() {
 
         {/* Page Content */}
         <div className="page-content">
+          <MonthSelector />
           <StatsCards stats={stats} />
           <TrackingCurve />
           <QuoteCard />

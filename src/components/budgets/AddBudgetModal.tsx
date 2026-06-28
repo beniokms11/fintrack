@@ -4,23 +4,25 @@ import { useState, useEffect } from 'react'
 import { X, ChevronDown, Check, Plus } from 'lucide-react'
 import { useApp } from '../providers/AppProvider'
 import AddCategoryModal from '../categories/AddCategoryModal'
+import { formatMonthLabel } from '../dashboard/MonthSelector'
 
 interface AddBudgetModalProps {
   isOpen: boolean
   onClose: () => void
   initialData?: any
-  onSave?: (data: { category_id: string; amount: number; period: string }, id?: string) => void
+  onSave?: (data: { category_id: string; amount: number; period: string; month?: string }, id?: string) => void
 }
 
 export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }: AddBudgetModalProps) {
-  const { categories: appCategories } = useApp()
+  const { categories: appCategories, selectedMonth } = useApp()
   // Filter only categories that can be treated as expenses for budgets
   const expenseCategories = appCategories.filter(c => c.type === 'expense' || c.type === 'both')
   
   const [form, setForm] = useState({
     category_id: initialData?.category_id || expenseCategories[0]?.id || '',
     amount: initialData?.amount?.toString() || '',
-    period: initialData?.period || 'monthly'
+    period: initialData?.period || 'monthly',
+    month: initialData?.month || selectedMonth
   })
 
   // Update form when initialData changes
@@ -29,7 +31,8 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
       setForm({
         category_id: initialData?.category_id || expenseCategories[0]?.id || '',
         amount: initialData?.amount?.toString() || '',
-        period: initialData?.period || 'monthly'
+        period: initialData?.period || 'monthly',
+        month: initialData?.month || selectedMonth
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -60,7 +63,8 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
       onSave({
         category_id: form.category_id,
         amount: parseFloat(form.amount),
-        period: form.period
+        period: form.period,
+        month: form.month
       }, initialData?.id)
     }
 
@@ -69,7 +73,8 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
       setForm({
         category_id: expenseCategories[0]?.id || '',
         amount: '',
-        period: 'monthly'
+        period: 'monthly',
+        month: selectedMonth
       })
       onClose()
     }, 600)
@@ -79,7 +84,8 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
     setForm({
       category_id: expenseCategories[0]?.id || '',
       amount: '',
-      period: 'monthly'
+      period: 'monthly',
+      month: selectedMonth
     })
     setShowCategories(false)
     onClose()
@@ -180,6 +186,25 @@ export default function AddBudgetModal({ isOpen, onClose, initialData, onSave }:
                 onClick={() => setForm(f => ({ ...f, period: 'monthly' }))}
               >
                 Mensuel
+              </button>
+            </div>
+          </div>
+
+          {/* Month Target Toggle */}
+          <div className="atm-field" style={{ marginTop: '16px' }}>
+            <label className="atm-label">Périmètre d'application</label>
+            <div className="atm-type-toggle" style={{ marginBottom: 0 }}>
+              <button
+                className={`atm-type-btn ${form.month === 'all' ? 'active expense' : ''}`}
+                onClick={() => setForm(f => ({ ...f, month: 'all' }))}
+              >
+                Tous les mois (Récurrent)
+              </button>
+              <button
+                className={`atm-type-btn ${form.month !== 'all' ? 'active expense' : ''}`}
+                onClick={() => setForm(f => ({ ...f, month: selectedMonth }))}
+              >
+                Mois de {formatMonthLabel(selectedMonth)}
               </button>
             </div>
           </div>

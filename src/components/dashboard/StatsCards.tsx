@@ -12,7 +12,7 @@ export default function StatsCards({ stats }: StatsCardsProps) {
   return (
     <div className="stats-hero-card glass-card-premium" id="card-hero-balance">
       <div className="shc-header">
-        <span className="shc-title">Total Balance</span>
+        <span className="shc-title">Solde de vos Comptes</span>
         <div className="shc-logo-wrap">
           <Wallet size={16} />
         </div>

@@ -5,11 +5,13 @@ import { formatXOF } from '@/lib/utils'
 import BottomNav from '@/components/navigation/BottomNav'
 import AddTransactionModal from '@/components/transactions/AddTransactionModal'
 import AddBudgetModal from '@/components/budgets/AddBudgetModal'
+import MonthSelector, { formatMonthLabel } from '@/components/dashboard/MonthSelector'
+import TopCategories from '@/components/dashboard/TopCategories'
 import { useState } from 'react'
-import { Plus, TrendingDown, Pencil, Trash2 } from 'lucide-react'
+import { Plus, TrendingDown, TrendingUp, Pencil, Trash2, Wallet } from 'lucide-react'
 
 export default function BudgetsPage() {
-  const { budgets, addTransaction, addBudget, updateBudget, deleteBudget, loading } = useApp()
+  const { budgets, stats, topSpending, selectedMonth, addTransaction, addBudget, updateBudget, deleteBudget, loading } = useApp()
   const [showAddModal, setShowAddModal] = useState(false)
   const [showBudgetModal, setShowBudgetModal] = useState(false)
   const [editingBudget, setEditingBudget] = useState<any>(null)
@@ -40,11 +42,54 @@ export default function BudgetsPage() {
         </header>
         
         <div className="page-content">
+          <MonthSelector />
+
+          {/* Point Global du Mois */}
+          <div className="monthly-point-card glass-card-premium">
+            <div className="mpc-header">
+              <span className="mpc-title">Point Global — {formatMonthLabel(selectedMonth)}</span>
+              <Wallet size={16} className="mpc-icon" />
+            </div>
+            <div className="mpc-grid">
+              <div className="mpc-item">
+                <span className="mpc-label">Revenus</span>
+                <div className="mpc-val-row">
+                  <TrendingUp size={14} className="positive" />
+                  <span className="mpc-val positive tabular-nums font-headline">{formatXOF(stats.totalIncome)}</span>
+                </div>
+              </div>
+              <div className="mpc-divider" />
+              <div className="mpc-item">
+                <span className="mpc-label">Dépenses</span>
+                <div className="mpc-val-row">
+                  <TrendingDown size={14} className="negative" />
+                  <span className="mpc-val negative tabular-nums font-headline">{formatXOF(stats.totalExpenses)}</span>
+                </div>
+              </div>
+              <div className="mpc-divider" />
+              <div className="mpc-item">
+                <span className="mpc-label">Solde Net</span>
+                <div className="mpc-val-row">
+                  <span className={`mpc-val tabular-nums font-headline ${stats.totalIncome - stats.totalExpenses >= 0 ? 'positive' : 'negative'}`}>
+                    {formatXOF(stats.totalIncome - stats.totalExpenses)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Répartition des Dépenses du Mois */}
+          <div style={{ marginBottom: '24px' }}>
+            <h2 className="section-title" style={{ marginBottom: '12px' }}>Répartition des Dépenses ({formatMonthLabel(selectedMonth)})</h2>
+            <TopCategories categories={topSpending} />
+          </div>
+
+          <h2 className="section-title" style={{ marginBottom: '12px' }}>Suivi des Budgets</h2>
           <div className="budget-hero-card" id="budget-summary">
-            <span className="bhc-label">TOTAL BUDGET</span>
-            <span className="bhc-balance tabular-nums">{formatXOF(totalBudget)}</span>
+            <span className="bhc-label">TOTAL DES BUDGETS</span>
+            <span className="bhc-balance tabular-nums font-headline">{formatXOF(totalBudget)}</span>
             <div className="bhc-progress-wrap">
-              <span className="bhc-spent-text">{formatXOF(totalSpent)} spent</span>
+              <span className="bhc-spent-text">{formatXOF(totalSpent)} dépensés</span>
               <div className="progress-bar">
                 <div className="progress-bar-fill" style={{
                   width: `${Math.min(overallPct * 100, 100)}%`,
@@ -56,7 +101,7 @@ export default function BudgetsPage() {
                   ? (totalBudget - totalSpent > 0 
                       ? `${formatXOF(totalBudget - totalSpent)} restant` 
                       : (totalBudget - totalSpent === 0 ? 'Limite atteinte' : `Dépassement de ${formatXOF(Math.abs(totalBudget - totalSpent))}`))
-                  : 'Aucun budget défini'
+                  : 'Aucun budget défini pour ce mois'
                 }
               </span>
             </div>
@@ -114,7 +159,10 @@ export default function BudgetsPage() {
                   </div>
 
                   <div className="bc-info">
-                    <span className="bc-name">{budget.category?.name}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="bc-name">{budget.category?.name}</span>
+                      <span className="bc-badge">{budget.month && budget.month !== 'all' ? 'Mois spécifique' : 'Récurrent'}</span>
+                    </div>
                     <span className="bc-amount tabular-nums">
                       {formatXOF(budget.spent || 0)} <span style={{ opacity: 0.5 }}>/ {formatXOF(budget.amount)}</span>
                     </span>
@@ -242,6 +290,68 @@ export default function BudgetsPage() {
             font-size: 11px;
             font-weight: 700;
             color: var(--color-text-secondary);
+          }
+          .bc-badge {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: var(--radius-full);
+            background: var(--color-surface-hover);
+            color: var(--color-text-tertiary);
+          }
+          .monthly-point-card {
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
+          }
+          .mpc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+          }
+          .mpc-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+          }
+          .mpc-icon {
+            color: var(--color-accent);
+          }
+          .mpc-grid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .mpc-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+          }
+          .mpc-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          .mpc-val-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+          .mpc-val {
+            font-size: 15px;
+            font-weight: 800;
+          }
+          .mpc-divider {
+            width: 1px;
+            height: 36px;
+            background: var(--color-border);
+            margin: 0 var(--space-sm);
           }
         `}</style>
       </div>

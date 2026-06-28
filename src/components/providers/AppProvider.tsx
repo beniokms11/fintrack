@@ -22,6 +22,8 @@ interface AppState {
   topSpending: SpendingByCategory[]
   aiInsights: AIInsight[]
   loading: boolean
+  selectedMonth: string
+  setSelectedMonth: (month: string) => void
   
   // Transaction actions
   addTransaction: (data: {
@@ -52,6 +54,7 @@ interface AppState {
     category_id: string
     amount: number
     period: string
+    month?: string
   }) => Promise<void>
   updateBudget: (id: string, data: any) => Promise<void>
   deleteBudget: (id: string) => Promise<void>
@@ -123,6 +126,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [budgets, setBudgets] = useState<Budget[]>([])
+  const [rawBudgets, setRawBudgets] = useState<Budget[]>([])
+  const [selectedMonth, setSelectedMonth] = useState<string>(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
   const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([])
   const [tontines, setTontines] = useState<Tontine[]>([])
   const [recurringTransactions, setRecurringTransactions] = useState<RecurringTransaction[]>([])
@@ -137,6 +145,74 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [topSpending, setTopSpending] = useState<SpendingByCategory[]>([])
   const [aiInsights, setAiInsights] = useState<AIInsight[]>([])
+
+  // Recalcule dynamiquement stats, topSpending et budgets en fonction du mois sélectionné
+  useEffect(() => {
+    if (loading && transactions.length === 0 && wallets.length === 0) return
+
+    const monthTx = transactions.filter(tx => tx.date && tx.date.startsWith(selectedMonth))
+
+    // 1. Stats du mois
+    const balance = wallets.reduce((acc, w) => acc + Number(w.balance), 0)
+    let income = 0
+    let expense = 0
+    monthTx.forEach(tx => {
+      if (tx.type === 'income') income += Number(tx.amount)
+      if (tx.type === 'expense') expense += Number(tx.amount)
+    })
+    const savings = savingsGoals.reduce((acc, sg) => acc + Number(sg.current_amount), 0)
+
+    setStats({
+      totalBalance: balance,
+      totalIncome: income,
+      totalExpenses: expense,
+      totalSavings: savings,
+      balanceChange: 0
+    })
+
+    // 2. Répartition des dépenses du mois (Top Spending)
+    const spendingMap: Record<string, { category: Category, total: number, count: number }> = {}
+    monthTx.forEach(tx => {
+      if (tx.type === 'expense' && tx.category) {
+        if (!spendingMap[tx.category.id]) {
+          spendingMap[tx.category.id] = { category: tx.category, total: 0, count: 0 }
+        }
+        spendingMap[tx.category.id].total += Number(tx.amount)
+        spendingMap[tx.category.id].count += 1
+      }
+    })
+
+    const top = Object.values(spendingMap)
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 6)
+      .map(s => ({
+        category: s.category,
+        total: s.total,
+        count: s.count,
+        percentage: expense > 0 ? s.total / expense : 0
+      }))
+    setTopSpending(top)
+
+    // 3. Budgets filtrés et calculés pour le mois
+    const processedBudgets = rawBudgets
+      .filter(b => !b.month || b.month === 'all' || b.month === selectedMonth)
+      .map(b => {
+        const budgetAmount = Number(b.amount || 0)
+        const spent = monthTx
+          .filter(tx => tx.type === 'expense' && tx.category_id === b.category_id)
+          .reduce((sum, tx) => sum + Number(tx.amount), 0)
+        
+        return {
+          ...b,
+          amount: budgetAmount,
+          spent,
+          remaining: budgetAmount - spent,
+          percentage: budgetAmount > 0 ? spent / budgetAmount : 0,
+          category: categories.find(c => c.id === b.category_id) || b.category
+        }
+      })
+    setBudgets(processedBudgets)
+  }, [transactions, wallets, rawBudgets, savingsGoals, categories, selectedMonth, loading])
 
   // Helper check for fallback mode
   const isFallbackMode = useCallback(() => {
@@ -336,24 +412,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }))
       setTopSpending(top)
 
-      // Budgets progress
-      const processedBudgets = bData.map((b: any) => {
-        const budgetAmount = Number(b.amount || 0)
-        const spent = richTransactions
-          .filter((tx: Transaction) => tx.type === 'expense' && tx.category_id === b.category_id)
-          .reduce((sum: number, tx: Transaction) => sum + Number(tx.amount), 0)
-        
-        return {
-          ...b,
-          amount: budgetAmount,
-          spent,
-          remaining: budgetAmount - spent,
-          percentage: budgetAmount > 0 ? spent / budgetAmount : 0,
-          category: cData.find((c: any) => c.id === b.category_id)
-        }
-      })
-      setBudgets(processedBudgets)
-
+      setRawBudgets(bData)
       setLoading(false)
       return
     }
@@ -555,22 +614,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }))
       setTopSpending(top)
 
-      // Budgets progress
-      const processedBudgets = (fetchedBudgets || []).map((b: any) => {
-        const budgetAmount = Number(b.amount || 0)
-        const spent = txData
-          .filter((tx: any) => tx.type === 'expense' && tx.category_id === b.category_id)
-          .reduce((sum: number, tx: any) => sum + Number(tx.amount), 0)
-        
-        return {
-          ...b,
-          amount: budgetAmount,
-          spent,
-          remaining: budgetAmount - spent,
-          percentage: budgetAmount > 0 ? spent / budgetAmount : 0
-        }
-      })
-      setBudgets(processedBudgets)
+      setRawBudgets(fetchedBudgets || [])
 
       // Fetch AI Insights
       if (txData.length > 0) {
@@ -766,6 +810,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     category_id: string
     amount: number
     period: string
+    month?: string
   }) => {
     if (isFallbackMode()) {
       const local = JSON.parse(localStorage.getItem('fintrack_budgets') || '[]')
@@ -1181,6 +1226,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       topSpending,
       aiInsights,
       loading,
+      selectedMonth,
+      setSelectedMonth,
       addTransaction,
       addBudget,
       addCategory,

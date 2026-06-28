@@ -71,6 +71,7 @@ export interface Budget {
   category_id: string
   amount: number
   period: BudgetPeriod
+  month?: string
   created_at: string
   // Computed
   spent?: number
