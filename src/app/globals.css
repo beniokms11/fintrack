@@ -61,9 +61,9 @@
   --radius-xl: 22px;
   --radius-full: 9999px;
 
-  /* Typography */
-  --font-family: "Plus Jakarta Sans", "Inter", "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-headline: "Outfit", "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typography — Apple SF Pro & Inter Stack */
+  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-headline: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Outfit", system-ui, sans-serif;
 
   --font-size-xs: 0.75rem;     /* 12px */
   --font-size-sm: 0.8125rem;  /* 13px */
@@ -135,6 +135,9 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+  letter-spacing: -0.011em;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
@@ -143,12 +146,18 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
-  line-height: 1.5;
+  line-height: 1.52;
+  letter-spacing: -0.011em;
   min-height: 100dvh;
   overflow-x: hidden;
 }
 
-/* --- Headline font class --- */
+h1, h2, h3, h4, h5, h6, .font-headline, .dashboard-logo-text {
+  font-family: var(--font-headline);
+  letter-spacing: -0.028em;
+  font-feature-settings: "cv02", "cv03", "cv04", "ss01";
+}
+
 .font-headline {
   font-family: var(--font-headline);
 }
