@@ -27,11 +27,6 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Fetch session to refresh auth token if needed
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
   // Detect if Supabase is unconfigured (using placeholder URL)
   const isSupabasePlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
                                 process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
@@ -39,6 +34,11 @@ export async function updateSession(request: NextRequest) {
   if (isSupabasePlaceholder) {
     return supabaseResponse
   }
+
+  // Fetch session to refresh auth token if needed
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   // Protect all non-auth routes
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register') || request.nextUrl.pathname.startsWith('/forgot-password')
