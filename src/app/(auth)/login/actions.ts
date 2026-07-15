@@ -4,7 +4,16 @@ import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { cookies, headers } from 'next/headers'
 
+const isSupabasePlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL || 
+                              process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')
+
+const CONFIG_ERROR = "La base de données Supabase n'est pas configurée. Veuillez définir les variables d'environnement (NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY) sur Vercel, ou cliquez sur le bouton 'Continuer hors-ligne (Démo)'."
+
 export async function login(formData: FormData) {
+  if (isSupabasePlaceholder) {
+    return { error: CONFIG_ERROR }
+  }
+
   const supabase = await createClient()
 
   // type-casting here for convenience
@@ -32,6 +41,10 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
+  if (isSupabasePlaceholder) {
+    return { error: CONFIG_ERROR }
+  }
+
   const supabase = await createClient()
 
   const email = formData.get('email') as string
@@ -69,6 +82,10 @@ export async function setOfflineMode() {
 }
 
 export async function forgotPassword(formData: FormData) {
+  if (isSupabasePlaceholder) {
+    return { error: CONFIG_ERROR }
+  }
+
   const supabase = await createClient()
   const email = formData.get('email') as string
 
@@ -92,6 +109,10 @@ export async function forgotPassword(formData: FormData) {
 }
 
 export async function updatePassword(formData: FormData) {
+  if (isSupabasePlaceholder) {
+    return { error: CONFIG_ERROR }
+  }
+
   const supabase = await createClient()
   const password = formData.get('password') as string
 
